@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: WPHEKA Web Server Information
+ * Plugin Name: Web Server Information
  * Plugin URI: https://www.wpheka.com/product/php-information/
- * Description: The <code><strong>WPHEKA Web Server Information</strong></code> plugin allows you to check full information about your web server PHP/Mysql configurations including libraries, system type and OS version.
+ * Description: The <code><strong>Web Server Information</strong></code> plugin allows you to check full information about your web server PHP/Mysql configurations including libraries, system type and OS version.
  * Version: 1.1
  * Author: WPHEKA
  * Author URI: https://www.wpheka.com
@@ -37,7 +37,7 @@ define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH', untrailingslashit( plugin_dir_path
  */
 function wpheka_web_server_missing_domdocument_notice() {
 	/* translators: 1. URL link. */
-	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'WPHEKA Web Server Information requires %s extension to be enabled.', 'wpheka-web-server-information' ), '<a href="http://php.net/manual/en/class.domdocument.php" target="_blank">DOMDocument</a>' ) . '</strong></p></div>';
+	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'Web Server Information requires %s extension to be enabled.', 'wpheka-web-server-information' ), '<a href="http://php.net/manual/en/class.domdocument.php" target="_blank">DOMDocument</a>' ) . '</strong></p></div>';
 }
 
 add_action( 'plugins_loaded', 'wpheka_web_server_info_init' );

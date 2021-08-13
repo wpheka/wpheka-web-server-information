@@ -1,4 +1,4 @@
-=== WPHEKA Web Server Information ===
+=== Web Server Information ===
 Contributors: akshayaswaroop, wpheka
 Tags: server stats, server information, php, php info, server information, db information, database information, phpinfo, mysql, server info
 Requires at least: 4.8
@@ -8,10 +8,10 @@ License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: paypal.me/AKSHAYASWAROOP
 
-WPHEKA Web Server Information plugin will give you detailed information about your hosting server's configuration and installed modules.
+Web Server Information plugin will give you detailed information about your hosting server's configuration and installed modules.
 
 == Description ==
-**WPHEKA Web Server Information** plugin allows you to check full information about the web server PHP/Mysql configurations including libraries, system type and OS version.
+**Web Server Information** plugin allows you to check full information about the web server PHP/Mysql configurations including libraries, system type and OS version.
 
 = Features List: =
 
