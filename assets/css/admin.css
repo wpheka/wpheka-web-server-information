@@ -1,0 +1,15 @@
+.toplevel_page_wpheka_plugin_panel .wp-menu-image img {
+	padding: 5px 0 0 0 !important;
+}
+.webserver-info table tr th,
+.webserver-info table tr td.e,
+.webserver-info table tfoot tr td {
+	font-weight: bold;
+}
+.webserver-info .widefat td.v {
+	word-break: break-word;
+}
+
+.webserver-info-wrap {
+	margin-top: 1em;
+}
