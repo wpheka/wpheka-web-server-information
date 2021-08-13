@@ -2,8 +2,8 @@
 Contributors: akshayaswaroop, wpheka
 Tags: server stats, server information, php, php info, server information, db information, database information, phpinfo, mysql, server info
 Requires at least: 4.8
-Tested up to: 5.4.2
-Stable tag: 1.0
+Tested up to: 5.8
+Stable tag: 1.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: paypal.me/AKSHAYASWAROOP
@@ -49,6 +49,9 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.1 - 2021-08-13 =
+* Enhancement - WordPress version 5.8 compatibility added.
 
 = 1.0 - 2020-07-29 =
 * Initial release

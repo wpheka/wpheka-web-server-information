@@ -3,13 +3,13 @@
  * Plugin Name: WPHEKA Web Server Information
  * Plugin URI: https://www.wpheka.com/product/php-information/
  * Description: The <code><strong>WPHEKA Web Server Information</strong></code> plugin allows you to check full information about your web server PHP/Mysql configurations including libraries, system type and OS version.
- * Version: 1.0
+ * Version: 1.1
  * Author: WPHEKA
  * Author URI: https://www.wpheka.com
  * Text Domain: wpheka-web-server-information
  * Domain Path: /languages/
- * Requires at least: 4.4
- * Tested up to: 5.4.2
+ * Requires at least: 4.8
+ * Tested up to: 5.8
  * License: GPLv3 or later
  *
  * @package   WPHEKA_Web_Server_Info
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'WPHEKA_WEB_SERVER_INFO_VERSION', '1.0' );
+define( 'WPHEKA_WEB_SERVER_INFO_VERSION', '1.1' );
 define( 'WPHEKA_WEB_SERVER_INFO_MAIN_FILE', __FILE__ );
 define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
