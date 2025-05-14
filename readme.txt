@@ -2,8 +2,8 @@
 Contributors: akshayaswaroop, wpheka
 Tags: server stats, server information, php, php info, server information, db information, database information, phpinfo, mysql, server info
 Requires at least: 4.8
-Tested up to: 5.8
-Stable tag: 1.1
+Tested up to: 6.8.1
+Stable tag: 1.6
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: paypal.me/AKSHAYASWAROOP
@@ -49,6 +49,21 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.6 - 2025-05-13 =
+* Enhancement - WordPress version 6.8.1 compatibility added.
+
+= 1.5 - 2024-11-30 =
+* Enhancement - WordPress version 6.7.1 compatibility added.
+
+= 1.4 - 2023-08-24 =
+* Enhancement - WordPress version 6.3 compatibility added.
+
+= 1.3 - 2022-05-25 =
+* Enhancement - WordPress version 6.0 compatibility added.
+
+= 1.2 - 2022-05-24 =
+* Fix - PHP 8.0 Warning: __wakeup() must have public visibility.
 
 = 1.1 - 2021-08-13 =
 * Enhancement - WordPress version 5.8 compatibility added.
