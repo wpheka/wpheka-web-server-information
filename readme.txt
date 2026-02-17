@@ -2,8 +2,8 @@
 Contributors: akshayaswaroop, wpheka
 Tags: server stats, server information, php, php info, server information, db information, database information, phpinfo, mysql, server info
 Requires at least: 4.8
-Tested up to: 6.8.1
-Stable tag: 1.6
+Tested up to: 6.9.1
+Stable tag: 1.7
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: paypal.me/AKSHAYASWAROOP
@@ -49,6 +49,12 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.7 - 2026-02-12 =
+* Fix - Fixed PHP 8.0+ undefined array key warning when accessing invalid tab.
+* Security - Added proper output escaping for tab URLs and labels.
+* Security - Added escaping for SERVER_SOFTWARE variable in admin footer.
+* Enhancement - WordPress version 6.9.1 compatibility added.
 
 = 1.6 - 2025-05-13 =
 * Enhancement - WordPress version 6.8.1 compatibility added.

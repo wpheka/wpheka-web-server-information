@@ -85,7 +85,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             }
 
             $active_tab = empty($_GET['tab']) ? 'webserver' : sanitize_title(wp_unslash($_GET['tab']));
-            $active_tab_label = $this->tabs[ $active_tab ];
+            $active_tab_label = isset($this->tabs[ $active_tab ]) ? $this->tabs[ $active_tab ] : $this->tabs['webserver'];
 
             add_submenu_page(
                 'wpheka_plugin_panel',
@@ -117,7 +117,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                         if ($active_tab == $tab_slug) {
                             $active_tab_class = 'nav-tab-active';
                         }
-                        echo '<a class="nav-tab ' . $active_tab_class . '" href="' . $tab_url . '">' . $tab . '</a>';
+                        echo '<a class="nav-tab ' . esc_attr($active_tab_class) . '" href="' . esc_url($tab_url) . '">' . esc_html($tab) . '</a>';
                     }
                     ?>
                     </h2>
@@ -159,7 +159,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             $update     = core_update_footer();
             $wp_version = strpos($update, '<strong>') === 0 ? get_bloginfo('version') . ' (' . $update . ')' : get_bloginfo('version');
 
-            return sprintf(esc_attr__('You are running WordPress %1$s  | PHP %2$s | %3$s | MySQL %4$s', 'version-info'), $wp_version, phpversion(), $_SERVER['SERVER_SOFTWARE'], $wpdb->get_var('SELECT VERSION();'));
+            return sprintf(esc_attr__('You are running WordPress %1$s  | PHP %2$s | %3$s | MySQL %4$s', 'version-info'), $wp_version, phpversion(), isset($_SERVER['SERVER_SOFTWARE']) ? esc_html($_SERVER['SERVER_SOFTWARE']) : 'Unknown', $wpdb->get_var('SELECT VERSION();'));
         }
     }
 
