@@ -120,6 +120,29 @@ final class Menu {
 			$position
 		);
 
+		/*
+		 * WordPress mirrors a parent as its own first submenu, so the menu shows
+		 * "WPHEKA" twice: once as the top-level item and once beneath it. The
+		 * mirror exists so a parent with its own page stays reachable; this
+		 * parent has no page, so it is pure noise.
+		 *
+		 * Removed at PHP_INT_MAX rather than here, because the mirror is created
+		 * by the first add_submenu_page() call and other plugins may still be
+		 * adding pages after this one. Registering a callback from inside
+		 * admin_menu is fine -- WordPress runs callbacks added during a hook so
+		 * long as their priority has not already passed.
+		 *
+		 * Every hand-rolled copy of this logic carries the same removal, under a
+		 * comment calling it a hack. It belongs here instead, once.
+		 */
+		add_action(
+			'admin_menu',
+			static function (): void {
+				remove_submenu_page( self::PARENT_SLUG, self::PARENT_SLUG );
+			},
+			PHP_INT_MAX
+		);
+
 		return true;
 	}
 
