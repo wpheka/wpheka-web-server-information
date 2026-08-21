@@ -108,7 +108,34 @@ function wpheka_web_server_info_options()
  */
 function wpheka_web_server_info_provision()
 {
-    wpheka_web_server_info_options()->update(array('version' => WPHEKA_WEB_SERVER_INFO_VERSION));
+    /*
+     * Not wpheka_web_server_info_options(). WordPress fires the activation hook
+     * *before* it writes active_sitewide_plugins -- activate_plugin() does
+     * do_action( "activate_{$plugin}" ) and only then update_site_option() --
+     * so during activation Options::for_plugin() cannot see that this is a
+     * network activation and resolves per-site scope.
+     *
+     * Left alone it writes a per-site row on every site while runtime reads the
+     * network row, and nothing reports the mismatch: the settings simply read
+     * back empty. Reproduced on a five-site network before this was fixed.
+     *
+     * So the scope is passed explicitly, which is what for_plugin()'s fourth
+     * argument is for. Outside activation the flag is null and detection is
+     * correct again -- notably on wp_initialize_site, which runs long after
+     * active_sitewide_plugins was written.
+     */
+    $network_activated = isset($GLOBALS['wpheka_web_server_info_network_activating'])
+        ? (bool) $GLOBALS['wpheka_web_server_info_network_activating']
+        : null;
+
+    $options = \WPHEKA\Framework\V1\Core\Options::for_plugin(
+        'wpheka_web_server_info_settings',
+        array('version' => '', 'footer_info' => true),
+        plugin_basename(WPHEKA_WEB_SERVER_INFO_MAIN_FILE),
+        $network_activated
+    );
+
+    $options->update(array('version' => WPHEKA_WEB_SERVER_INFO_VERSION));
 }
 
 /**
@@ -217,7 +244,16 @@ function wpheka_web_server_info_activate($network_wide = false)
         return;
     }
 
-    \WPHEKA\Framework\V1\Core\Lifecycle::activate('wpheka_web_server_info_provision', (bool) $network_wide);
+    // Threaded through a global because Lifecycle::activate() takes a callable
+    // with no arguments, and provisioning has to know the scope. See the note
+    // in wpheka_web_server_info_provision().
+    $GLOBALS['wpheka_web_server_info_network_activating'] = (bool) $network_wide;
+
+    try {
+        \WPHEKA\Framework\V1\Core\Lifecycle::activate('wpheka_web_server_info_provision', (bool) $network_wide);
+    } finally {
+        unset($GLOBALS['wpheka_web_server_info_network_activating']);
+    }
 }
 
 /**
