@@ -10,7 +10,7 @@
  * Domain Path: /languages/
  * Requires at least: 4.8
  * Requires PHP: 8.1
- * Tested up to: 6.9.1
+ * Tested up to: 7.1
  * License: GPLv3 or later
  *
  * @package   WPHEKA_Web_Server_Info

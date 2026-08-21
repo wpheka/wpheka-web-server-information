@@ -1,13 +1,12 @@
 === Web Server Information ===
 Contributors: akshayaswaroop, wpheka
-Tags: server stats, server information, php, php info, server information, db information, database information, phpinfo, mysql, server info
+Tags: server information, phpinfo, php, mysql, database
 Requires at least: 4.8
-Tested up to: 6.9.1
+Tested up to: 7.1
 Stable tag: 1.7
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
-Donate link: paypal.me/AKSHAYASWAROOP
-
+Donate link: https://www.paypal.me/AKSHAYASWAROOP
 Web Server Information plugin will give you detailed information about your hosting server's configuration and installed modules.
 
 == Description ==

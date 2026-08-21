@@ -1,0 +1,240 @@
+# Copyright (C) 2026 WPHEKA
+# This file is distributed under the GPLv3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Web Server Information 1.7\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpheka-web-server-information\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-21T13:28:40+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wpheka-web-server-information\n"
+
+#. Plugin Name of the plugin
+#: wpheka-web-server-information.php
+#: includes/class-wpheka-web-server-info-admin.php:101
+#: includes/class-wpheka-web-server-info-admin.php:102
+msgid "Web Server Information"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wpheka-web-server-information.php
+msgid "https://www.wpheka.com/product/php-information/"
+msgstr ""
+
+#. Description of the plugin
+#: wpheka-web-server-information.php
+msgid "The <code><strong>Web Server Information</strong></code> plugin allows you to check full information about your web server PHP/Mysql configurations including libraries, system type and OS version."
+msgstr ""
+
+#. Author of the plugin
+#: wpheka-web-server-information.php
+msgid "WPHEKA"
+msgstr ""
+
+#. Author URI of the plugin
+#: wpheka-web-server-information.php
+msgid "https://www.wpheka.com"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:26
+msgid "This page will show you the in-depth information about your database"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:28
+msgid "Basic Database Information"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:32
+#: includes/class-wpheka-info-admin-dbinfo.php:38
+#: includes/class-wpheka-info-admin-dbinfo.php:75
+#: includes/class-wpheka-info-admin-dbinfo.php:81
+msgid "Variable Name"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:33
+#: includes/class-wpheka-info-admin-dbinfo.php:39
+#: includes/class-wpheka-info-admin-dbinfo.php:76
+#: includes/class-wpheka-info-admin-dbinfo.php:82
+msgid "Value"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:44
+msgid "Database Software"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:48
+msgid "Database Version"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:52
+msgid "Maximum No. of Connections"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:56
+msgid "Maximum Packet Size"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:60
+msgid "Database Disk Usage"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:64
+msgid "Index Disk Usage"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:71
+msgid "Advanced Database Information"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:107
+msgid "Something went wrong!"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:133
+#: includes/class-wpheka-info-admin-dbinfo.php:155
+#: includes/class-wpheka-info-admin-dbinfo.php:175
+#: includes/class-wpheka-info-admin-dbinfo.php:198
+#: includes/class-wpheka-info-admin-dbinfo.php:248
+#: includes/class-wpheka-info-admin-dbinfo.php:274
+msgid "N/A"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:216
+msgid "PB"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:218
+msgid "TB"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:220
+msgid "GB"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:222
+msgid "MB"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:224
+msgid "KB"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:226
+msgid "bytes"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-dbinfo.php:228
+#: includes/class-wpheka-web-server-info-admin.php:182
+msgid "Unknown"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:54
+msgid "Server Overview"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:59
+msgid "Server OS"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:60
+msgid "Bit OS"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:63
+msgid "Server Software"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:67
+msgid "Server IP"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:71
+msgid "Server Port"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:75
+msgid "Server Location"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:79
+msgid "Server Hostname"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:83
+msgid "Site's Document Root"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:121
+msgid "Settings saved."
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:127
+msgid "Settings"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:135
+msgid "Admin footer"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:145
+#: wpheka-web-server-information.php:130
+msgid "Show server details in the admin footer"
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:148
+#: wpheka-web-server-information.php:131
+msgid "Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions."
+msgstr ""
+
+#: includes/class-wpheka-info-admin-webserver.php:154
+msgid "Save Changes"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-admin.php:37
+msgid "Overview"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-admin.php:38
+msgid "PHP Information"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-admin.php:39
+msgid "Database Information"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-admin.php:126
+msgid "WPHEKA Web Server Information"
+msgstr ""
+
+#. translators: 1: WordPress version, 2: PHP version, 3: server software, 4: MySQL version.
+#: includes/class-wpheka-web-server-info-admin.php:179
+#, php-format
+msgid "You are running WordPress %1$s | PHP %2$s | %3$s | MySQL %4$s"
+msgstr ""
+
+#: wpheka-web-server-information.php:128
+msgid "Display"
+msgstr ""
+
+#: wpheka-web-server-information.php:172
+msgid "You do not have permission to change these settings."
+msgstr ""
+
+#: wpheka-web-server-information.php:176
+msgid "That link has expired. Please try again."
+msgstr ""
+
+#. translators: 1. URL link.
+#: wpheka-web-server-information.php:249
+#, php-format
+msgid "Web Server Information requires %s extension to be enabled."
+msgstr ""
+
+#: wpheka-web-server-information.php:376
+msgid "Information Page"
+msgstr ""
