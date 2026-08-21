@@ -9,6 +9,7 @@
  * Text Domain: wpheka-web-server-information
  * Domain Path: /languages/
  * Requires at least: 4.8
+ * Requires PHP: 8.1
  * Tested up to: 6.9.1
  * License: GPLv3 or later
  *
@@ -28,6 +29,121 @@ define('WPHEKA_WEB_SERVER_INFO_VERSION', '1.7');
 define('WPHEKA_WEB_SERVER_INFO_MAIN_FILE', __FILE__);
 define('WPHEKA_WEB_SERVER_INFO_PLUGIN_URL', untrailingslashit(plugins_url(basename(plugin_dir_path(__FILE__)), basename(__FILE__))));
 define('WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH', untrailingslashit(plugin_dir_path(__FILE__)));
+define('WPHEKA_WEB_SERVER_INFO_MIN_FRAMEWORK', '1.0.0');
+
+/*
+ * The framework loads here, at include time, and never on a hook: the registry
+ * has to resolve before plugins_loaded so the winning build is known to every
+ * plugin that bundles one. is_readable() first, because a truncated upload on
+ * shared hosting is a real failure mode and a bare require would take the whole
+ * site down with it.
+ */
+if (is_readable(__DIR__ . '/framework/register.php')) {
+    require_once __DIR__ . '/framework/register.php';
+}
+
+/**
+ * Whether a usable framework booted.
+ *
+ * Every class this plugin touches is listed, not just the version. Bundling is
+ * modular and another plugin's bundle can win, so a build can be new enough and
+ * still lack a module this one needs.
+ *
+ * @since 1.8
+ * @return bool
+ */
+function wpheka_web_server_info_framework_ready()
+{
+    if (!class_exists('WPHEKA_Framework_Versions', false)) {
+        return false;
+    }
+
+    $active = WPHEKA_Framework_Versions::active_version('1');
+
+    if (!is_string($active) || !version_compare($active, WPHEKA_WEB_SERVER_INFO_MIN_FRAMEWORK, '>=')) {
+        return false;
+    }
+
+    foreach (array(
+        '\\WPHEKA\\Framework\\V1\\Core\\Options',
+        '\\WPHEKA\\Framework\\V1\\Core\\Lifecycle',
+    ) as $class) {
+        if (!class_exists($class)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Settings storage, scoped by how the plugin was activated.
+ *
+ * @since 1.8
+ * @return \WPHEKA\Framework\V1\Core\Options
+ */
+function wpheka_web_server_info_options()
+{
+    static $options = null;
+
+    if (null === $options) {
+        $options = \WPHEKA\Framework\V1\Core\Options::for_plugin(
+            'wpheka_web_server_info_settings',
+            array('version' => ''),
+            plugin_basename(WPHEKA_WEB_SERVER_INFO_MAIN_FILE)
+        );
+    }
+
+    return $options;
+}
+
+/**
+ * Record the installed version. Idempotent: it runs on activation, on every
+ * site of a network, and again on sites created afterwards.
+ *
+ * @since 1.8
+ * @return void
+ */
+function wpheka_web_server_info_provision()
+{
+    wpheka_web_server_info_options()->update(array('version' => WPHEKA_WEB_SERVER_INFO_VERSION));
+}
+
+register_activation_hook(WPHEKA_WEB_SERVER_INFO_MAIN_FILE, 'wpheka_web_server_info_activate');
+add_action('wp_initialize_site', 'wpheka_web_server_info_new_site', 100);
+
+/**
+ * Activation.
+ *
+ * @since 1.8
+ * @param bool $network_wide Whether the plugin is being network-activated.
+ * @return void
+ */
+function wpheka_web_server_info_activate($network_wide = false)
+{
+    if (!wpheka_web_server_info_framework_ready()) {
+        return;
+    }
+
+    \WPHEKA\Framework\V1\Core\Lifecycle::activate('wpheka_web_server_info_provision', (bool) $network_wide);
+}
+
+/**
+ * A site created after activation. Without this, sites added to a network later
+ * never get provisioned and nothing says so.
+ *
+ * @since 1.8
+ * @param mixed $site New site.
+ * @return void
+ */
+function wpheka_web_server_info_new_site($site)
+{
+    if (!wpheka_web_server_info_framework_ready()) {
+        return;
+    }
+
+    \WPHEKA\Framework\V1\Core\Lifecycle::on_new_site($site, WPHEKA_WEB_SERVER_INFO_MAIN_FILE, 'wpheka_web_server_info_provision');
+}
 
 /**
  * DOMDocument fallback notice.
@@ -101,7 +217,6 @@ function wpheka_web_server_info_init()
              */
             private function __construct()
             {
-                add_action('admin_init', array($this, 'install'));
                 $this->init();
             }
 
@@ -127,8 +242,11 @@ function wpheka_web_server_info_init()
              */
             public function update_plugin_version()
             {
-                delete_option('wpheka_web_server_info_version');
-                update_option('wpheka_web_server_info_version', WPHEKA_WEB_SERVER_INFO_VERSION);
+                if (!wpheka_web_server_info_framework_ready()) {
+                    return;
+                }
+
+                wpheka_web_server_info_provision();
             }
 
             /**
@@ -139,10 +257,18 @@ function wpheka_web_server_info_init()
              */
             public function install()
             {
-                if (!is_plugin_active(plugin_basename(__FILE__))) {
-                    return;
-                }
-
+                /*
+                 * Retained for anything that calls it. The version stamp is now
+                 * written by the activation hook via Lifecycle, so this no
+                 * longer needs to run on every admin request -- which is what
+                 * the admin_init binding it used to carry was compensating for,
+                 * in the absence of an activation hook.
+                 *
+                 * The legacy wpheka_web_server_info_version option is left
+                 * where it is rather than migrated. Nothing has ever read it;
+                 * it is a write-only stamp, so carrying it across would be
+                 * ceremony rather than care.
+                 */
                 $this->update_plugin_version();
             }
 
