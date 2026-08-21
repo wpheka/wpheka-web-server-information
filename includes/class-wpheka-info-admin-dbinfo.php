@@ -42,27 +42,27 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 				<tbody>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Database Software', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->database_software(); ?></td>
+						<td class="v"><?php echo esc_html( $this->database_software() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Database Version', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->database_version(); ?></td>
+						<td class="v"><?php echo esc_html( $this->database_version() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Maximum No. of Connections', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->database_max_no_connection(); ?></td>
+						<td class="v"><?php echo esc_html( $this->database_max_no_connection() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Maximum Packet Size', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->database_max_packet_size(); ?></td>
+						<td class="v"><?php echo esc_html( $this->database_max_packet_size() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Database Disk Usage', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->database_disk_usage(); ?></td>
+						<td class="v"><?php echo esc_html( $this->database_disk_usage() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Index Disk Usage', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->index_disk_usage(); ?></td>
+						<td class="v"><?php echo esc_html( $this->index_disk_usage() ); ?></td>
 					</tr>
 				</tbody>
 			</table>
@@ -95,10 +95,17 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 
 				if ( ! empty( $dbinfo ) ) {
 					foreach ( $dbinfo as $info ) {
-						echo '<tr><td class="e">' . $info->Variable_name . '</td><td class="v">' . htmlspecialchars( $info->Value ) . '</td></tr>';
+						printf(
+							'<tr><td class="e">%1$s</td><td class="v">%2$s</td></tr>',
+							esc_html( $info->Variable_name ),
+							esc_html( $info->Value )
+						);
 					}
 				} else {
-					echo '<tr><td>' . __( 'Something went wrong!', 'wpheka-web-server-information' ) . '</td><td>' . __( 'Something went wrong!', 'wpheka-web-server-information' ) . '</td></tr>';
+					printf(
+						'<tr><td>%1$s</td><td>%1$s</td></tr>',
+						esc_html__( 'Something went wrong!', 'wpheka-web-server-information' )
+					);
 				}
 				?>
 				</tbody>

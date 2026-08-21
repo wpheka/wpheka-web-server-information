@@ -26,6 +26,27 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 		private $tabs = array();
 
 		/**
+		 * One $_SERVER value, safe to print.
+		 *
+		 * $_SERVER keys are not guaranteed to exist -- SERVER_SOFTWARE and
+		 * SERVER_PORT are absent under CLI and some FastCGI setups -- so reading
+		 * them unguarded emits an undefined-index warning on exactly the hosts
+		 * this plugin exists to report on. The value is request data, so it is
+		 * unslashed and sanitised before it is escaped for output.
+		 *
+		 * @since 1.8
+		 * @param string $key $_SERVER key.
+		 * @return string Empty when the key is absent.
+		 */
+		private function server_var( $key ) {
+			if ( ! isset( $_SERVER[ $key ] ) ) {
+				return '';
+			}
+
+			return sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+		}
+
+		/**
 		 * WPHEKA_Info_Admin_Webserver Constructor.
 		 */
 		public function __construct() {
@@ -36,31 +57,31 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 				<tbody>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Server OS', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->server_os(); ?>&nbsp;/&nbsp;<?php echo ( PHP_INT_SIZE * 8 ) . __( 'Bit OS', 'wp-server-stats' ); ?></td>
+						<td class="v"><?php echo esc_html( $this->server_os() ); ?>&nbsp;/&nbsp;<?php echo esc_html( ( PHP_INT_SIZE * 8 ) . __( 'Bit OS', 'wpheka-web-server-information' ) ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Server Software', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $_SERVER['SERVER_SOFTWARE']; ?></td>
+						<td class="v"><?php echo esc_html( $this->server_var( 'SERVER_SOFTWARE' ) ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Server IP', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo ( $this->validate_ip_address( $this->check_server_ip() ) ? $this->check_server_ip() : 'ERROR IP096T' ); ?></td>
+						<td class="v"><?php echo esc_html( $this->validate_ip_address( $this->check_server_ip() ) ? $this->check_server_ip() : 'ERROR IP096T' ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Server Port', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $_SERVER['SERVER_PORT']; ?></td>
+						<td class="v"><?php echo esc_html( $this->server_var( 'SERVER_PORT' ) ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Server Location', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $this->check_server_location(); ?></td>
+						<td class="v"><?php echo esc_html( $this->check_server_location() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Server Hostname', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo gethostname(); ?></td>
+						<td class="v"><?php echo esc_html( (string) gethostname() ); ?></td>
 					</tr>
 					<tr>
 						<td class="e"><?php esc_html_e( 'Site\'s Document Root', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo $_SERVER['DOCUMENT_ROOT'] . '/'; ?></td>
+						<td class="v"><?php echo esc_html( $this->server_var( 'DOCUMENT_ROOT' ) . '/' ); ?></td>
 					</tr>
 				</tbody>
 			</table>

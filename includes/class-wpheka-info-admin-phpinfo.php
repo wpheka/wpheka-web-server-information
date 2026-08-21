@@ -46,7 +46,14 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Phpinfo', false ) ) :
 			libxml_use_internal_errors( false );
 			$phpinfo_html = $html->saveXml( $body->item( 0 ) );
 
-			echo $phpinfo_html;
+			/*
+			 * Filtered, not escaped. This is the markup phpinfo() produced, so
+			 * esc_html() would print the table as literal text and defeat the
+			 * page. It is not trusted either: phpinfo() embeds $_SERVER values
+			 * and request headers, which are attacker-influenced. wp_kses_post()
+			 * keeps the table and removes script vectors.
+			 */
+			echo wp_kses_post( $phpinfo_html );
 		}
 
 	}

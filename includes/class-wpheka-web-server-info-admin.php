@@ -108,7 +108,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             $active_tab = empty($_GET['tab']) ? 'webserver' : sanitize_title(wp_unslash($_GET['tab']));
             ?>
                 <div class="wrap webserver-info">
-                    <h2><?php _e('WPHEKA Web Server Information', 'wpheka-web-server-information'); ?></h2>
+                    <h2><?php esc_html_e('WPHEKA Web Server Information', 'wpheka-web-server-information'); ?></h2>
                     <h2 class="nav-tab-wrapper">
                     <?php
                     foreach ($this->tabs as $tab_slug => $tab) {
