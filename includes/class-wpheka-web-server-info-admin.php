@@ -34,9 +34,9 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             $this->tabs = apply_filters(
                 'wpheka_web_server_info_tabs_array',
                 array(
-                    'webserver' => 'Overview',
-                    'phpinfo' => 'PHP Information',
-                    'dbinfo' => 'Database Information',
+                    'webserver' => __('Overview', 'wpheka-web-server-information'),
+                    'phpinfo'   => __('PHP Information', 'wpheka-web-server-information'),
+                    'dbinfo'    => __('Database Information', 'wpheka-web-server-information'),
                 )
             );
 
@@ -75,36 +75,41 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
 
         public function wpheka_web_server_info_menu()
         {
-            global $admin_page_hooks;
-
-            if (! isset($admin_page_hooks['wpheka_plugin_panel'])) {
-                $position   = apply_filters('wpheka_plugins_menu_item_position', '55.5');
-                $capability = apply_filters('wpheka_plugin_panel_menu_page_capability', 'manage_options');
-                $show       = apply_filters('wpheka_plugin_panel_menu_page_show', true);
-
-                // WPHEKA text must not be translated.
-                if (! ! $show) {
-                    add_menu_page('wpheka_plugin_panel', 'WPHEKA', $capability, 'wpheka_plugin_panel', null, untrailingslashit(plugins_url('/assets/images/wp-heka-menu-icon-22.svg', WPHEKA_WEB_SERVER_INFO_MAIN_FILE)), $position);
-                }
+            /*
+             * The shared WPHEKA parent is coordinated by the framework now
+             * (ADR-028), which replaces the fifteen lines this method used to
+             * carry -- the same fifteen lines four sibling plugins still carry.
+             *
+             * The capability is not restated. add_page() inherits the parent's,
+             * which is the point: this method previously filtered the parent's
+             * capability and then hardcoded manage_options on its own submenu,
+             * so the two disagreed the moment anyone used the filter.
+             *
+             * The page title no longer varies by tab. It used to read $_GET, so
+             * menu registration depended on request state; the active tab is
+             * already the heading on the page itself.
+             */
+            if (!wpheka_web_server_info_framework_ready()) {
+                return;
             }
 
-            // Tab navigation, not a state change: the value only selects which
-            // read-only panel renders, and it is passed through sanitize_title().
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- navigation only, no state change.
-            $active_tab = empty($_GET['tab']) ? 'webserver' : sanitize_title(wp_unslash($_GET['tab']));
-            $active_tab_label = isset($this->tabs[ $active_tab ]) ? $this->tabs[ $active_tab ] : $this->tabs['webserver'];
+            $menu = new \WPHEKA\Framework\V1\Admin\Menu(
+                untrailingslashit(plugins_url('/assets/images/wp-heka-menu-icon-22.svg', WPHEKA_WEB_SERVER_INFO_MAIN_FILE))
+            );
 
-            add_submenu_page(
-                'wpheka_plugin_panel',
-                $active_tab_label,
-                'Web Server Information',
-                'manage_options',
+            $menu->add_page(
+                __('Web Server Information', 'wpheka-web-server-information'),
+                __('Web Server Information', 'wpheka-web-server-information'),
                 'wpheka-information',
                 array( $this, 'wpheka_web_server_info_page_callback' )
             );
 
-            /* === Duplicate Items Hack === */
-            remove_submenu_page('wpheka_plugin_panel', 'wpheka_plugin_panel');
+            /*
+             * The "Duplicate Items Hack" that stood here is gone. WordPress
+             * still mirrors the parent as its own first submenu; the framework
+             * adapter removes it once, at PHP_INT_MAX, so every plugin sharing
+             * the parent no longer needs its own copy of the removal (ADR-028).
+             */
         }
 
         /**
