@@ -51,8 +51,12 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             add_action('info_page_phpinfo_tab_init', array( &$this, 'tab_init' ), 10, 1);
             add_action('info_page_dbinfo_tab_init', array( &$this, 'tab_init' ), 10, 1);
 
-            // Display php/db info in footer.
-            add_filter('update_footer', array( $this, 'version_info_in_footer' ), 11);
+            // Display php/db info in footer, if the setting allows it. Checked
+            // here rather than inside the callback so that when it is off, the
+            // filter is never attached and the version query never runs.
+            if (wpheka_web_server_info_footer_enabled()) {
+                add_filter('update_footer', array( $this, 'version_info_in_footer' ), 11);
+            }
         }
 
         /**
@@ -84,6 +88,9 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 }
             }
 
+            // Tab navigation, not a state change: the value only selects which
+            // read-only panel renders, and it is passed through sanitize_title().
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- navigation only, no state change.
             $active_tab = empty($_GET['tab']) ? 'webserver' : sanitize_title(wp_unslash($_GET['tab']));
             $active_tab_label = isset($this->tabs[ $active_tab ]) ? $this->tabs[ $active_tab ] : $this->tabs['webserver'];
 
@@ -105,6 +112,9 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
          */
         public function wpheka_web_server_info_page_callback()
         {
+            // Tab navigation, not a state change: the value only selects which
+            // read-only panel renders, and it is passed through sanitize_title().
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- navigation only, no state change.
             $active_tab = empty($_GET['tab']) ? 'webserver' : sanitize_title(wp_unslash($_GET['tab']));
             ?>
                 <div class="wrap webserver-info">
@@ -159,7 +169,14 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             $update     = core_update_footer();
             $wp_version = strpos($update, '<strong>') === 0 ? get_bloginfo('version') . ' (' . $update . ')' : get_bloginfo('version');
 
-            return sprintf(esc_attr__('You are running WordPress %1$s  | PHP %2$s | %3$s | MySQL %4$s', 'version-info'), $wp_version, phpversion(), isset($_SERVER['SERVER_SOFTWARE']) ? esc_html($_SERVER['SERVER_SOFTWARE']) : 'Unknown', $wpdb->get_var('SELECT VERSION();'));
+            return sprintf(
+                /* translators: 1: WordPress version, 2: PHP version, 3: server software, 4: MySQL version. */
+                esc_attr__('You are running WordPress %1$s | PHP %2$s | %3$s | MySQL %4$s', 'wpheka-web-server-information'),
+                $wp_version,
+                phpversion(),
+                empty($_SERVER['SERVER_SOFTWARE']) ? esc_html__('Unknown', 'wpheka-web-server-information') : sanitize_text_field(wp_unslash($_SERVER['SERVER_SOFTWARE'])),
+                $wpdb->get_var('SELECT VERSION();')
+            );
         }
     }
 

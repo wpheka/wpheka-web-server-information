@@ -86,6 +86,74 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 				</tbody>
 			</table>
 			<?php
+			$this->render_settings();
+		}
+
+		/**
+		 * The plugin's one setting, rendered at the foot of this tab.
+		 *
+		 * Deliberately not a settings page of its own. There is a single option,
+		 * and a whole page -- or a fourth tab -- holding one checkbox reads as
+		 * thinner than the setting deserves. Screen Options would be the native
+		 * home for a show/hide preference, but it is per-user and per-screen,
+		 * while this governs every admin page for everyone.
+		 *
+		 * @since 1.8
+		 * @return void
+		 */
+		private function render_settings() {
+			if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'wpheka_web_server_info_footer_enabled' ) ) {
+				return;
+			}
+
+			/*
+			 * No nonce on this read, deliberately. It is a display flag set by
+			 * the redirect after a successful save, and it changes nothing --
+			 * the worst a crafted URL achieves is a spurious "Settings saved"
+			 * notice. The save itself verifies both a nonce and the capability;
+			 * that is the state-changing path. WordPress core uses the same
+			 * pattern for settings-updated.
+			 */
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flag, no state change.
+			if ( isset( $_GET['wpheka-updated'] ) ) {
+				printf(
+					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+					esc_html__( 'Settings saved.', 'wpheka-web-server-information' )
+				);
+			}
+
+			$enabled = wpheka_web_server_info_footer_enabled();
+			?>
+			<h2><?php esc_html_e( 'Settings', 'wpheka-web-server-information' ); ?></h2>
+			<hr />
+			<form method="post" action="">
+				<?php wp_nonce_field( 'wpheka_wsi_save', 'wpheka_wsi_nonce' ); ?>
+				<table class="form-table" role="presentation">
+					<tbody>
+						<tr>
+							<th scope="row">
+								<?php esc_html_e( 'Admin footer', 'wpheka-web-server-information' ); ?>
+							</th>
+							<td>
+								<label for="wpheka_wsi_footer_info">
+									<input
+										type="checkbox"
+										name="wpheka_wsi_footer_info"
+										id="wpheka_wsi_footer_info"
+										value="1"
+										<?php checked( $enabled ); ?> />
+									<?php esc_html_e( 'Show server details in the admin footer', 'wpheka-web-server-information' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions.', 'wpheka-web-server-information' ); ?>
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<?php submit_button( __( 'Save Changes', 'wpheka-web-server-information' ) ); ?>
+			</form>
+			<?php
 		}
 
 		/**

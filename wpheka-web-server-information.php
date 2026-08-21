@@ -67,6 +67,8 @@ function wpheka_web_server_info_framework_ready()
     foreach (array(
         '\\WPHEKA\\Framework\\V1\\Core\\Options',
         '\\WPHEKA\\Framework\\V1\\Core\\Lifecycle',
+        '\\WPHEKA\\Framework\\V1\\Admin\\Settings',
+        '\\WPHEKA\\Framework\\V1\\Admin\\Field',
     ) as $class) {
         if (!class_exists($class)) {
             return false;
@@ -89,7 +91,7 @@ function wpheka_web_server_info_options()
     if (null === $options) {
         $options = \WPHEKA\Framework\V1\Core\Options::for_plugin(
             'wpheka_web_server_info_settings',
-            array('version' => ''),
+            array('version' => '', 'footer_info' => true),
             plugin_basename(WPHEKA_WEB_SERVER_INFO_MAIN_FILE)
         );
     }
@@ -107,6 +109,96 @@ function wpheka_web_server_info_options()
 function wpheka_web_server_info_provision()
 {
     wpheka_web_server_info_options()->update(array('version' => WPHEKA_WEB_SERVER_INFO_VERSION));
+}
+
+/**
+ * The settings schema.
+ *
+ * Built on demand rather than at include time: the labels translate, and
+ * WordPress 6.7+ silently refuses to translate a string requested before init.
+ *
+ * @since 1.8
+ * @return \WPHEKA\Framework\V1\Admin\Settings
+ */
+function wpheka_web_server_info_schema()
+{
+    $field    = '\WPHEKA\Framework\V1\Admin\Field';
+    $settings = new \WPHEKA\Framework\V1\Admin\Settings();
+
+    $settings->section('display', __('Display', 'wpheka-web-server-information'));
+    $settings->add(
+        (new $field('footer_info', $field::TOGGLE, __('Show server details in the admin footer', 'wpheka-web-server-information')))
+            ->describe(__('Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions.', 'wpheka-web-server-information'))
+            ->default_to(true)
+    );
+
+    return $settings;
+}
+
+/**
+ * Whether the admin footer replacement is switched on.
+ *
+ * Defaults to true, which is what the plugin did unconditionally before the
+ * setting existed. Defaulting to false would silently change what every
+ * existing install shows after an update.
+ *
+ * @since 1.8
+ * @return bool
+ */
+function wpheka_web_server_info_footer_enabled()
+{
+    if (!wpheka_web_server_info_framework_ready()) {
+        return true;
+    }
+
+    return (bool) wpheka_web_server_info_options()->get('footer_info', true);
+}
+
+add_action('admin_init', 'wpheka_web_server_info_save_settings');
+
+/**
+ * Save the settings form posted from the Overview tab.
+ *
+ * @since 1.8
+ * @return void
+ */
+function wpheka_web_server_info_save_settings()
+{
+    if (!isset($_POST['wpheka_wsi_nonce'])) {
+        return;
+    }
+
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('You do not have permission to change these settings.', 'wpheka-web-server-information'));
+    }
+
+    if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['wpheka_wsi_nonce'])), 'wpheka_wsi_save')) {
+        wp_die(esc_html__('That link has expired. Please try again.', 'wpheka-web-server-information'));
+    }
+
+    if (!wpheka_web_server_info_framework_ready()) {
+        return;
+    }
+
+    /*
+     * An unchecked checkbox posts nothing at all, so its absence is the value.
+     * Reading it with isset() and letting the schema sanitise the result keeps
+     * the cast in one place rather than inline here.
+     */
+    $clean = wpheka_web_server_info_schema()->sanitize(
+        array('footer_info' => isset($_POST['wpheka_wsi_footer_info']) ? '1' : '')
+    );
+
+    wpheka_web_server_info_options()->update($clean);
+
+    // Redirect so a refresh does not repost the form.
+    wp_safe_redirect(
+        add_query_arg(
+            array('page' => 'wpheka-information', 'tab' => 'webserver', 'wpheka-updated' => '1'),
+            admin_url('admin.php')
+        )
+    );
+    exit;
 }
 
 register_activation_hook(WPHEKA_WEB_SERVER_INFO_MAIN_FILE, 'wpheka_web_server_info_activate');
