@@ -64,11 +64,24 @@ function wpheka_web_server_info_framework_ready()
         return false;
     }
 
+    /*
+     * Every framework class this plugin touches, not just the version. A
+     * version check passes while the module set is still incomplete, because
+     * bundling is modular and another plugin's bundle can win.
+     *
+     * Admin\Menu is on this list because wpheka_web_server_info_menu() calls
+     * `new Admin\Menu` after consulting this guard. Settings and Field living
+     * in the same module is not enough: a bundle built before ADR-028 carries
+     * Admin/Settings.php and Admin/Field.php and no Admin/Menu.php, so the
+     * guard passed and the constructor fataled on admin_menu -- a white screen
+     * in wp-admin, from a guard that had already said yes.
+     */
     foreach (array(
         '\\WPHEKA\\Framework\\V1\\Core\\Options',
         '\\WPHEKA\\Framework\\V1\\Core\\Lifecycle',
         '\\WPHEKA\\Framework\\V1\\Admin\\Settings',
         '\\WPHEKA\\Framework\\V1\\Admin\\Field',
+        '\\WPHEKA\\Framework\\V1\\Admin\\Menu',
     ) as $class) {
         if (!class_exists($class)) {
             return false;
