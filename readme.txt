@@ -1,7 +1,7 @@
 === Web Server Information ===
 Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
-Requires at least: 4.8
+Requires at least: 5.1
 Tested up to: 7.1
 Stable tag: 1.7
 License: GPLv3

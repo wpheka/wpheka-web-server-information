@@ -8,7 +8,7 @@
  * Author URI: https://www.wpheka.com
  * Text Domain: wpheka-web-server-information
  * Domain Path: /languages/
- * Requires at least: 4.8
+ * Requires at least: 5.1
  * Requires PHP: 8.1
  * Tested up to: 7.1
  * License: GPLv3 or later
