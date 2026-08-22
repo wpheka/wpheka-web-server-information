@@ -3,7 +3,7 @@ Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
 Requires at least: 5.1
 Tested up to: 7.1
-Stable tag: 1.7
+Stable tag: 1.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://www.paypal.me/AKSHAYASWAROOP
@@ -48,6 +48,16 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.8 - 2026-08-22 =
+* Feature - The server information shown in the admin footer can now be switched off, from a toggle at the bottom of the Overview tab. It stays on by default.
+* Security - Escaped all admin output and guarded direct reads of server variables.
+* Fix - The menu and the tab labels are translatable. Two strings also used the wrong text domain, so they never reached translation tools.
+* Fix - On a network, settings are saved to the same place they are read from. Activating for all sites previously wrote them per site while the plugin read a network-wide value, so the settings appeared empty.
+* Fix - Removed a way the admin menu could fail outright when an incomplete framework build was present on the site.
+* Fix - The Domain Path header pointed at a languages folder that did not exist. The folder and a translation template are now included.
+* Enhancement - The screen now appears under the shared WPHEKA menu.
+* Enhancement - Requires PHP 8.1 and WordPress 5.1. WordPress 7.1 compatibility added.
 
 = 1.7 - 2026-02-12 =
 * Fix - Fixed PHP 8.0+ undefined array key warning when accessing invalid tab.
