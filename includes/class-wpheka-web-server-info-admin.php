@@ -43,8 +43,8 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             // Admin Menu.
             add_action('admin_menu', array( &$this, 'wpheka_web_server_info_menu' ));
 
-            // Review prompt, on this plugin's own screen only.
-            add_filter('admin_footer_text', array( $this, 'wpheka_web_server_info_review_prompt' ));
+            // Review prompt.
+            add_action('admin_notices', array( $this, 'wpheka_web_server_info_review_prompt' ));
             add_action('admin_init', array( $this, 'wpheka_web_server_info_maybe_hide_review_prompt' ));
 
             // admin script and style.
@@ -80,10 +80,10 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
         /**
          * Ask for a review in the footer of this plugin's own screen.
          *
-         * The approach follows WooCommerce's admin footer prompt -- filter
-         * admin_footer_text, limit it to our own screen, and stop asking once
-         * the user says so. Written here rather than taken from WooCommerce,
-         * whose licence differs from this project's (ADR-008).
+         * The approach follows Elementor's rate-us notice -- dashboard only,
+         * dismissed per user rather than per site, and gated on a usage count
+         * rather than elapsed time. Written here rather than taken from
+         * Elementor, whose licence differs from this project's (ADR-008).
          *
          * **Links to the plain reviews page, not a pre-filled five-star form.**
          * WooCommerce links to `reviews?rate=5#new-post` with five stars as the
@@ -102,25 +102,46 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
          * @param string $footer_text Existing footer text.
          * @return string
          */
-        public function wpheka_web_server_info_review_prompt($footer_text)
+        public function wpheka_web_server_info_review_prompt()
         {
-            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-
-            if (! $screen || false === strpos((string) $screen->id, 'wpheka-information')) {
-                return $footer_text;
+            if (! current_user_can('manage_options')) {
+                return;
             }
 
-            if (get_option('wpheka_web_server_info_review_dismissed')) {
-                return $footer_text;
+            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+
+            if (! $screen || 'dashboard' !== $screen->id) {
+                return;
+            }
+
+            // Per user, so one administrator cannot answer for the rest. The old
+            // site-wide option is still honoured so nobody is asked twice.
+            if (get_option('wpheka_web_server_info_review_dismissed')
+                || get_user_meta(get_current_user_id(), 'wpheka_wsi_review_dismissed', true)) {
+                return;
+            }
+
+            /*
+             * Three visits to this plugin's own screen. It reports server
+             * configuration and has no success event to count, so repeated
+             * deliberate visits are the closest honest signal that someone finds
+             * it useful. Weaker than counting a job done, and still better than
+             * a timer, which measures nothing.
+             */
+            if (3 > (int) get_option('wpheka_web_server_info_view_count', 0)) {
+                return;
             }
 
             $reviews = 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews/';
             $hide    = wp_nonce_url(
-                add_query_arg('wpheka_wsi_hide_review', '1', admin_url('admin.php?page=wpheka-information')),
+                add_query_arg('wpheka_wsi_hide_review', '1', admin_url('index.php')),
                 'wpheka_wsi_hide_review'
             );
-
-            return sprintf(
+            ?>
+            <div class="notice notice-info is-dismissible">
+                <p>
+                <?php
+                printf(
                 /* translators: 1: plugin name, 2: opening link tag to the reviews page, 3: closing link tag, 4: opening link tag to dismiss, 5: closing link tag */
                 esc_html__('If %1$s is useful to you, a review on WordPress.org helps others find it. %2$sLeave a review%3$s or %4$sdon\'t ask again%5$s.', 'wpheka-web-server-information'),
                 '<strong>' . esc_html__('Web Server Information', 'wpheka-web-server-information') . '</strong>',
@@ -129,6 +150,29 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 '<a href="' . esc_url($hide) . '">',
                 '</a>'
             );
+                ?>
+                </p>
+            </div>
+            <?php
+        }
+
+        /**
+         * Count deliberate visits to this plugin's screen.
+         *
+         * Stops writing once the review prompt's threshold is met.
+         *
+         * @since 1.8
+         * @return void
+         */
+        public function wpheka_web_server_info_count_view()
+        {
+            $count = (int) get_option('wpheka_web_server_info_view_count', 0);
+
+            if ($count >= 3) {
+                return;
+            }
+
+            update_option('wpheka_web_server_info_view_count', $count + 1, false);
         }
 
         /**
@@ -149,9 +193,9 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
 
             check_admin_referer('wpheka_wsi_hide_review');
 
-            update_option('wpheka_web_server_info_review_dismissed', 1);
+            update_user_meta(get_current_user_id(), 'wpheka_wsi_review_dismissed', 1);
 
-            wp_safe_redirect(admin_url('admin.php?page=wpheka-information'));
+            wp_safe_redirect(admin_url('index.php'));
             exit;
         }
 
@@ -199,6 +243,8 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
          */
         public function wpheka_web_server_info_page_callback()
         {
+            $this->wpheka_web_server_info_count_view();
+
             // Tab navigation, not a state change: the value only selects which
             // read-only panel renders, and it is passed through sanitize_title().
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- navigation only, no state change.
