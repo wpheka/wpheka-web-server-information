@@ -51,6 +51,7 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 
 = 1.8 - 2026-08-22 =
 * Feature - The server information shown in the admin footer can now be switched off, from a toggle at the bottom of the Overview tab. It stays on by default.
+* Feature - Asks for a review on the Dashboard once the plugin has been used, with a link that pre-selects a five-star rating. Shown only after three visits to its own screen, dismissed per user rather than for the whole site, and never shown again once dismissed.
 * Security - Escaped all admin output and guarded direct reads of server variables.
 * Fix - The menu and the tab labels are translatable. Two strings also used the wrong text domain, so they never reached translation tools.
 * Fix - On a network, settings are saved to the same place they are read from. Activating for all sites previously wrote them per site while the plugin read a network-wide value, so the settings appeared empty.
