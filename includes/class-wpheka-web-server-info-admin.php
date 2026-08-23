@@ -43,6 +43,10 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             // Admin Menu.
             add_action('admin_menu', array( &$this, 'wpheka_web_server_info_menu' ));
 
+            // Review prompt, on this plugin's own screen only.
+            add_filter('admin_footer_text', array( $this, 'wpheka_web_server_info_review_prompt' ));
+            add_action('admin_init', array( $this, 'wpheka_web_server_info_maybe_hide_review_prompt' ));
+
             // admin script and style.
             add_action('admin_enqueue_scripts', array( &$this, 'wpheka_web_server_info_admin_scripts_styles' ));
 
@@ -71,6 +75,84 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             if ('wpheka_page_wpheka-information' == $screen_id) {
                 wp_enqueue_style('wpheka_web_server_info_admin_css', WPHEKA_WEB_SERVER_INFO_PLUGIN_URL . '/assets/css/admin.css', array(), WPHEKA_WEB_SERVER_INFO_VERSION);
             }
+        }
+
+        /**
+         * Ask for a review in the footer of this plugin's own screen.
+         *
+         * The approach follows WooCommerce's admin footer prompt -- filter
+         * admin_footer_text, limit it to our own screen, and stop asking once
+         * the user says so. Written here rather than taken from WooCommerce,
+         * whose licence differs from this project's (ADR-008).
+         *
+         * **Links to the plain reviews page, not a pre-filled five-star form.**
+         * WooCommerce links to `reviews?rate=5#new-post` with five stars as the
+         * anchor text; Plugin Check reports that as `five_star_reviews_detected`
+         * -- "Linking directly to 5 stars reviews is not allowed" -- and a
+         * sibling plugin had precisely that finding cleared. Asking for a review
+         * is permitted; asking for a particular score is what gets flagged.
+         *
+         * The dismissal is a plain option rather than the framework settings
+         * row, deliberately. It is one boolean that must read the same whether
+         * or not a framework booted; routing it through Options would make the
+         * answer depend on the boot guard, and a prompt that reappears after
+         * being dismissed is worse than one stored simply.
+         *
+         * @since 1.8
+         * @param string $footer_text Existing footer text.
+         * @return string
+         */
+        public function wpheka_web_server_info_review_prompt($footer_text)
+        {
+            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+
+            if (! $screen || false === strpos((string) $screen->id, 'wpheka-information')) {
+                return $footer_text;
+            }
+
+            if (get_option('wpheka_web_server_info_review_dismissed')) {
+                return $footer_text;
+            }
+
+            $reviews = 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews/';
+            $hide    = wp_nonce_url(
+                add_query_arg('wpheka_wsi_hide_review', '1', admin_url('admin.php?page=wpheka-information')),
+                'wpheka_wsi_hide_review'
+            );
+
+            return sprintf(
+                /* translators: 1: plugin name, 2: opening link tag to the reviews page, 3: closing link tag, 4: opening link tag to dismiss, 5: closing link tag */
+                esc_html__('If %1$s is useful to you, a review on WordPress.org helps others find it. %2$sLeave a review%3$s or %4$sdon\'t ask again%5$s.', 'wpheka-web-server-information'),
+                '<strong>' . esc_html__('Web Server Information', 'wpheka-web-server-information') . '</strong>',
+                '<a href="' . esc_url($reviews) . '" target="_blank" rel="noopener noreferrer">',
+                '</a>',
+                '<a href="' . esc_url($hide) . '">',
+                '</a>'
+            );
+        }
+
+        /**
+         * Stop asking, when the user asks us to.
+         *
+         * @since 1.8
+         * @return void
+         */
+        public function wpheka_web_server_info_maybe_hide_review_prompt()
+        {
+            if (! isset($_GET['wpheka_wsi_hide_review'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked immediately below.
+                return;
+            }
+
+            if (! current_user_can('manage_options')) {
+                return;
+            }
+
+            check_admin_referer('wpheka_wsi_hide_review');
+
+            update_option('wpheka_web_server_info_review_dismissed', 1);
+
+            wp_safe_redirect(admin_url('admin.php?page=wpheka-information'));
+            exit;
         }
 
         public function wpheka_web_server_info_menu()
