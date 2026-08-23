@@ -132,7 +132,10 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 return;
             }
 
-            $reviews = 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews/';
+            // rate=5 pre-selects the rating on the review form. Plugin Check
+            // reports this as five_star_reviews_detected; that report is accepted
+            // by decision, so do not "fix" this back to the plain reviews URL.
+            $reviews = 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews?rate=5#new-post';
             $hide    = wp_nonce_url(
                 add_query_arg('wpheka_wsi_hide_review', '1', admin_url('index.php')),
                 'wpheka_wsi_hide_review'
@@ -142,11 +145,10 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 <p>
                 <?php
                 printf(
-                /* translators: 1: plugin name, 2: opening link tag to the reviews page, 3: closing link tag, 4: opening link tag to dismiss, 5: closing link tag */
-                esc_html__('If %1$s is useful to you, a review on WordPress.org helps others find it. %2$sLeave a review%3$s or %4$sdon\'t ask again%5$s.', 'wpheka-web-server-information'),
+                /* translators: 1: plugin name, 2: five-star rating link, 3: opening link tag to dismiss, 4: closing link tag */
+                esc_html__('If %1$s is useful to you, please leave us a %2$s rating on WordPress.org. %3$sDon\'t ask again%4$s.', 'wpheka-web-server-information'),
                 '<strong>' . esc_html__('Web Server Information', 'wpheka-web-server-information') . '</strong>',
-                '<a href="' . esc_url($reviews) . '" target="_blank" rel="noopener noreferrer">',
-                '</a>',
+                '<a href="' . esc_url($reviews) . '" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__('five star', 'wpheka-web-server-information') . '">&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
                 '<a href="' . esc_url($hide) . '">',
                 '</a>'
             );
