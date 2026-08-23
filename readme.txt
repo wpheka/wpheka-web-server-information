@@ -3,7 +3,7 @@ Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
 Requires at least: 5.1
 Tested up to: 7.1
-Stable tag: 1.8
+Stable tag: 1.8.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://www.paypal.me/AKSHAYASWAROOP
@@ -48,6 +48,9 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.8.1 - 2026-08-23 =
+* Fix - The "Plugin URI" header pointed at a page that no longer exists, so "Visit plugin site" and the plugin directory listing both led to a 404. It now points at the Web Server Information product page.
 
 = 1.8 - 2026-08-22 =
 * Feature - The server information shown in the admin footer can now be switched off, from a toggle at the bottom of the Overview tab. It stays on by default.
