@@ -195,8 +195,27 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 			if ( $server_location === false ) {
 				// lets validate the ip.
 				if ( $this->validate_ip_address( $ip ) ) {
-					$query = @unserialize( wp_remote_retrieve_body( wp_remote_get( 'http://ip-api.com/php/' . $ip ) ) );
-					if ( $query && $query['status'] == 'success' ) {
+					/*
+					 * JSON, not the /php/ endpoint. ip-api's free tier is plain
+					 * HTTP only, so the body can be altered in transit, and
+					 * unserialize() on it was a PHP object injection path.
+					 * json_decode() only ever builds arrays and scalars.
+					 */
+					// $ip has passed FILTER_VALIDATE_IP, so it is only digits,
+					// hex, dots and colons and is safe in the path as is.
+					$response = wp_remote_get( 'http://ip-api.com/json/' . $ip );
+
+					if ( is_wp_error( $response ) ) {
+						return $response->get_error_message();
+					}
+
+					$query = json_decode( wp_remote_retrieve_body( $response ), true );
+
+					if ( ! is_array( $query ) || empty( $query['status'] ) ) {
+						return '';
+					}
+
+					if ( 'success' === $query['status'] && isset( $query['city'], $query['country'] ) ) {
 						$server_location = $query['city'] . ', ' . $query['country'];
 						set_transient( 'wpheka_web_server_location', $server_location, WEEK_IN_SECONDS );
 					} else {
