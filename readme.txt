@@ -2,7 +2,7 @@
 Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
 Requires at least: 5.1
-Tested up to: 7.1
+Tested up to: 7.1.2
 Stable tag: 1.8.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
