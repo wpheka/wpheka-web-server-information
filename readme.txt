@@ -3,7 +3,7 @@ Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
 Requires at least: 5.1
 Tested up to: 7.1.2
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://www.paypal.me/AKSHAYASWAROOP
@@ -48,6 +48,10 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.8.3 - 2026-10-05 =
+* Fix - Closing the review request with its X now hides it for 14 days for that user. It used to come back on the next Dashboard load.
+* Enhancement - WordPress 7.1.2 compatibility.
 
 = 1.8.2 - 2026-10-01 =
 * Security - The server location lookup no longer unserializes the reply from ip-api.com, which arrives over plain HTTP and could be altered in transit. It now reads the JSON endpoint instead.
