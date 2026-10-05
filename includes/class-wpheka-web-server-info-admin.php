@@ -46,6 +46,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
             // Review prompt.
             add_action('admin_notices', array( $this, 'wpheka_web_server_info_review_prompt' ));
             add_action('admin_init', array( $this, 'wpheka_web_server_info_maybe_hide_review_prompt' ));
+            add_action('wp_ajax_wpheka_wsi_snooze_review', array( $this, 'wpheka_web_server_info_snooze_review_prompt' ));
 
             // admin script and style.
             add_action('admin_enqueue_scripts', array( &$this, 'wpheka_web_server_info_admin_scripts_styles' ));
@@ -121,6 +122,12 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 return;
             }
 
+            // Closed with its X: asked again in 14 days, for this user only.
+            $snoozed_until = (int) get_user_meta(get_current_user_id(), 'wpheka_wsi_review_snoozed_until', true);
+            if ($snoozed_until > time()) {
+                return;
+            }
+
             /*
              * Three visits to this plugin's own screen. It reports server
              * configuration and has no success event to count, so repeated
@@ -147,7 +154,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 'wpheka_wsi_hide_review'
             );
             ?>
-            <div class="notice notice-info is-dismissible">
+            <div id="wpheka-wsi-review-notice" class="notice notice-info is-dismissible" data-nonce="<?php echo esc_attr(wp_create_nonce('wpheka_wsi_snooze_review')); ?>">
                 <p>
                 <?php
                 printf(
@@ -161,7 +168,37 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 ?>
                 </p>
             </div>
+            <script>
+            // WordPress hides an is-dismissible notice on its X but remembers
+            // nothing, so without this the prompt was back on the next load.
+            jQuery(function ($) {
+                $(document).on('click', '#wpheka-wsi-review-notice .notice-dismiss', function () {
+                    $.post(ajaxurl, { action: 'wpheka_wsi_snooze_review', _ajax_nonce: $('#wpheka-wsi-review-notice').data('nonce') });
+                });
+            });
+            </script>
             <?php
+        }
+
+        /**
+         * Snooze the review prompt for 14 days when its X is clicked.
+         *
+         * Per user, like the permanent dismissal: closing a notice is one
+         * person's decision. "Don't ask again" still hides it for good.
+         *
+         * @since 1.8.3
+         * @return void
+         */
+        public function wpheka_web_server_info_snooze_review_prompt()
+        {
+            check_ajax_referer('wpheka_wsi_snooze_review');
+
+            if (! current_user_can('manage_options')) {
+                wp_send_json_error(null, 403);
+            }
+
+            update_user_meta(get_current_user_id(), 'wpheka_wsi_review_snoozed_until', time() + 14 * DAY_IN_SECONDS);
+            wp_send_json_success();
         }
 
         /**
