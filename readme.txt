@@ -12,7 +12,7 @@ Web Server Information plugin will give you detailed information about your host
 == Description ==
 **Web Server Information** plugin allows you to check full information about the web server PHP/Mysql configurations including libraries, system type and OS version.
 
-= Features List: =
+### 🖥️ FEATURES
 
 * Display **server OS**
 * Display **server software**
