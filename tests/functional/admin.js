@@ -9,8 +9,20 @@ const path = require('path');
 
 const STATE = process.env.WSI_STATE;
 const ids = JSON.parse(fs.readFileSync(path.join(STATE, 'ids.json'), 'utf8'));
-const st = (...args) => JSON.parse(execFileSync('wp', ['--path=' + process.env.WP_PATH, 'eval-file', path.join(__dirname, 'state.php'), ...args], { encoding: 'utf8', env: process.env, stdio: ['ignore', 'pipe', 'ignore'] }).trim().split('\n').filter(l => !l.startsWith('Deprecated')).pop() || 'null');
+// WP_CLI overrides how WP-CLI is called (words split on spaces) on a machine
+// where `wp` is a script node cannot start: WP_CLI="php /path/to/wp-cli.phar".
+const WP_CLI = (process.env.WP_CLI || 'wp').split(' ');
+const st = (...args) => JSON.parse(execFileSync(WP_CLI[0], [...WP_CLI.slice(1), '--path=' + process.env.WP_PATH, 'eval-file', path.join(__dirname, 'state.php'), ...args], { encoding: 'utf8', env: process.env, stdio: ['ignore', 'pipe', 'ignore'] }).trim().split('\n').filter(l => !l.startsWith('Deprecated')).pop() || 'null');
 const record = (ok, name, detail) => { const line = `${ok ? 'PASS' : 'FAIL'}|${name}${ok ? '' : ' -- ' + detail}`; fs.appendFileSync(path.join(STATE, 'results'), line + '\n'); console.log('  ' + line); };
+// A crash anywhere in this script is a FAIL, never a silent stop: run.sh also
+// fails a non-zero exit and a missing "ran to the end" case.
+const crashed = kind => e => {
+  const lines = String((e && e.stack) || e).split('\n');
+  try { record(false, `admin.js: ${kind}`, [lines[0], (lines.find(l => /^\s+at /.test(l)) || '').trim()].filter(Boolean).join(' ')); } catch (ignored) {}
+  process.exit(1);
+};
+process.on('unhandledRejection', crashed('no unhandled promise rejection'));
+process.on('uncaughtException', crashed('no uncaught exception'));
 const A = ids.admin_url;
 const PAGE = `${A}admin.php?page=wpheka-information`;
 const errors = [];
@@ -18,7 +30,9 @@ async function check(name, fn) { try { const [ok, detail] = await fn(); record(o
 const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Parse error/i.test(html);
 
 (async () => {
-  const browser = await chromium.launch();
+  // PW_CHANNEL=chrome runs the installed Google Chrome instead of Playwright's
+  // bundled Chromium (for a machine without the matching browser download).
+  const browser = await chromium.launch(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {});
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 1600 } });
   await ctx.addCookies(ids.admin_cookies);
   const page = await ctx.newPage();
@@ -132,4 +146,5 @@ const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Pa
   const real = errors.filter(e => !/Transition was skipped/.test(e));
   record(real.length === 0, 'no JavaScript errors on the plugin screens', JSON.stringify(real).slice(0, 400));
   await browser.close();
+  record(true, 'admin.js: ran to the end');
 })();

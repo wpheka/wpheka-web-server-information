@@ -12,6 +12,8 @@
 # a failure, and the plugin is left active or inactive as it was found.
 #
 # Needs: WP-CLI and Node with Playwright (PW_NODE_PATH, or a node_modules below).
+# Optional: WP_CLI="php /path/to/wp-cli.phar" when node cannot start `wp`, and
+# PW_CHANNEL=chrome to use the installed Google Chrome.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,6 +29,24 @@ done
 [ -n "${NODE_PATH:-}" ] || { echo "Playwright not found; set PW_NODE_PATH"; exit 2; }
 
 wpe() { wp --path="$WP_PATH" eval-file "$@" 2>&1 | grep -v -e 'Deprecated' -e '^$' -e 'Undefined array key 1'; }
+
+# Runs one browser script. Never "|| true" a test step: a non-zero exit is a
+# FAIL, and so is a script that stopped before its final "ran to the end" case
+# (an unsettled promise lets node exit 0 halfway through).
+run_node() {
+  local script="$1"; shift
+  node "$HERE/$script" "$@"
+  local code=$?
+  if [ "$code" -ne 0 ]; then
+    echo "  FAIL|$script exited with code $code"
+    echo "FAIL|$script exited with code $code" >> "$STATE/results"
+  fi
+  if ! grep -qxF "PASS|$script: ran to the end" "$STATE/results" 2>/dev/null; then
+    echo "  FAIL|$script: ran to the end -- the script stopped before its last case"
+    echo "FAIL|$script: ran to the end -- the script stopped before its last case" >> "$STATE/results"
+  fi
+}
+
 cleanup() {
   wpe "$HERE/state.php" cleanup | sed 's/^/  /'
   rm -rf "$STATE"
@@ -42,8 +62,9 @@ OFFSET=$(wc -c < "$LOG" 2>/dev/null || echo 0)
 
 echo "== setup";   wpe "$HERE/state.php" setup | sed 's/^/  /'
 [ -f "$STATE/ids.json" ] || { echo "setup failed"; exit 2; }
-echo "== screens"; node "$HERE/admin.js" || true
+echo "== screens"; run_node admin.js
 
+# grep finds nothing in a clean log and exits 1; "|| true" only reads the log here.
 NEW=$(tail -c +$((OFFSET + 1)) "$LOG" 2>/dev/null | grep -v 'PHP Deprecated' | grep 'wpheka-web-server-information' | grep -v '_load_textdomain_just_in_time' || true)
 if [ -n "$NEW" ]; then echo "$NEW" | cut -c1-300; echo "FAIL|debug.log clean -- new errors above" >> "$STATE/results"; else echo "PASS|debug.log clean" >> "$STATE/results"; fi
 
