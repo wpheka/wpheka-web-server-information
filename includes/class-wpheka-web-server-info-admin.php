@@ -79,19 +79,16 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
         }
 
         /**
-         * Ask for a review in the footer of this plugin's own screen.
+         * Ask for a review in an admin notice on the dashboard.
          *
          * The approach follows Elementor's rate-us notice -- dashboard only,
          * dismissed per user rather than per site, and gated on a usage count
          * rather than elapsed time. Written here rather than taken from
          * Elementor, whose licence differs from this project's (ADR-008).
          *
-         * **Links to the plain reviews page, not a pre-filled five-star form.**
-         * WooCommerce links to `reviews?rate=5#new-post` with five stars as the
-         * anchor text; Plugin Check reports that as `five_star_reviews_detected`
-         * -- "Linking directly to 5 stars reviews is not allowed" -- and a
-         * sibling plugin had precisely that finding cleared. Asking for a review
-         * is permitted; asking for a particular score is what gets flagged.
+         * **Links to the review form with five stars pre-selected**
+         * (`reviews?rate=5#new-post`, the URL form WooCommerce uses). See the
+         * comment above `$reviews` for why Plugin Check does not flag it.
          *
          * The dismissal is a plain option rather than the framework settings
          * row, deliberately. It is one boolean that must read the same whether
@@ -100,8 +97,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
          * being dismissed is worse than one stored simply.
          *
          * @since 1.8
-         * @param string $footer_text Existing footer text.
-         * @return string
+         * @return void
          */
         public function wpheka_web_server_info_review_prompt()
         {

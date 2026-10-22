@@ -84,13 +84,19 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 				</tfoot>
 				<tbody>
 				<?php
-				if ( get_option( 'wpheka_web_server_db_advanced_info' ) ) {
-					$dbinfo = get_option( 'wpheka_web_server_db_advanced_info' );
-				} else {
+				// Versions before 1.9.0 kept this in an autoloaded option, loaded on every
+				// request and never refreshed. Drop it; a transient replaces it.
+				if ( false !== get_option( 'wpheka_web_server_db_advanced_info' ) ) {
+					delete_option( 'wpheka_web_server_db_advanced_info' );
+				}
+
+				$dbinfo = get_transient( 'wpheka_web_server_db_advanced_info' );
+				if ( false === $dbinfo ) {
 					global $wpdb;
-					$dbversion = $wpdb->get_var( 'SELECT VERSION() AS version' );
 					$dbinfo = $wpdb->get_results( 'SHOW VARIABLES' );
-					update_option( 'wpheka_web_server_db_advanced_info', $dbinfo );
+					if ( ! empty( $dbinfo ) ) {
+						set_transient( 'wpheka_web_server_db_advanced_info', $dbinfo, WEEK_IN_SECONDS );
+					}
 				}
 
 				if ( ! empty( $dbinfo ) ) {

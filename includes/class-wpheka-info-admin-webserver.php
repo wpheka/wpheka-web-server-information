@@ -203,15 +203,20 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 					 */
 					// $ip has passed FILTER_VALIDATE_IP, so it is only digits,
 					// hex, dots and colons and is safe in the path as is.
-					$response = wp_remote_get( 'http://ip-api.com/json/' . $ip );
+					$response = wp_remote_get( 'http://ip-api.com/json/' . $ip, array( 'timeout' => 5 ) );
 
+					// A failed lookup is cached for an hour, so an unreachable or
+					// rate-limited ip-api does not slow every visit to this screen.
 					if ( is_wp_error( $response ) ) {
-						return $response->get_error_message();
+						$server_location = $response->get_error_message();
+						set_transient( 'wpheka_web_server_location', $server_location, HOUR_IN_SECONDS );
+						return $server_location;
 					}
 
 					$query = json_decode( wp_remote_retrieve_body( $response ), true );
 
 					if ( ! is_array( $query ) || empty( $query['status'] ) ) {
+						set_transient( 'wpheka_web_server_location', '', HOUR_IN_SECONDS );
 						return '';
 					}
 
@@ -224,6 +229,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 						} else {
 							$server_location = $query['message'];
 						}
+						set_transient( 'wpheka_web_server_location', $server_location, HOUR_IN_SECONDS );
 					}
 				} else {
 					$server_location = 'ERROR IP096T';

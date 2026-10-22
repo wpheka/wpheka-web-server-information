@@ -18,7 +18,7 @@ Web Server Information plugin will give you detailed information about your host
 * Display **server software**
 * Display **server IP address**
 * Display **server port**
-* Display **server location** detected by ip address using [IP-API.com](https://ip-api.com/docs/api:serialized_php) .See [Terms and Policies](https://ip-api.com/docs/legal).
+* Display **server location** detected by ip address using [IP-API.com](https://ip-api.com/docs/api:json) .See [Terms and Policies](https://ip-api.com/docs/legal).
 * Display **server hostname**
 * Display **server document root**
 * Detailed information about the **PHP version** you are using and **installed modules**.
