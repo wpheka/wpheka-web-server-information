@@ -63,6 +63,14 @@ OFFSET=$(wc -c < "$LOG" 2>/dev/null || echo 0)
 echo "== setup";   wpe "$HERE/state.php" setup | sed 's/^/  /'
 [ -f "$STATE/ids.json" ] || { echo "setup failed"; exit 2; }
 echo "== screens"; run_node admin.js
+echo "== php checks"
+wpe "$HERE/security.php" | grep -E '^(PASS|FAIL)\|' | tee -a "$STATE/results" | sed 's/^/  /'
+grep -qxF "PASS|security.php: ran to the end" "$STATE/results" || echo "FAIL|security.php: ran to the end -- it stopped before its last check" >> "$STATE/results"
+# The network-wide setting needs a multisite network with the plugin network-activated.
+if [ "${WSI_NETWORK:-}" = 1 ]; then
+  wpe "$HERE/security.php" network | grep -E '^(PASS|FAIL)\|' | tee -a "$STATE/results" | sed 's/^/  /'
+  grep -qxF "PASS|security.php network: ran to the end" "$STATE/results" || echo "FAIL|security.php network: ran to the end -- it stopped before its last check" >> "$STATE/results"
+fi
 
 # grep finds nothing in a clean log and exits 1; "|| true" only reads the log here.
 NEW=$(tail -c +$((OFFSET + 1)) "$LOG" 2>/dev/null | grep -v 'PHP Deprecated' | grep 'wpheka-web-server-information' | grep -v '_load_textdomain_just_in_time' || true)

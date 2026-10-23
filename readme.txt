@@ -49,6 +49,13 @@ If you enjoyed this plugin then please put a review, that will encourage me to b
 
 == Changelog ==
 
+= Unreleased =
+* Security - The server versions in the admin footer now show only to users who can open the information page. Authors, editors and other users with wp-admin access see WordPress' own footer again.
+* Security - The PHP tab no longer prints your cookies, the login cookie included. A screenshot or a copy of the page shared for support is safe to post.
+* Security - On a network where the plugin is network-activated, only a network admin can change the network-wide footer setting.
+* Fix - The information page and its setting now use the same capability. A site that changed who can open the page through the `wpheka_plugin_panel_menu_page_capability` filter let those users read the page but not save.
+* Fix - A tab added through the `wpheka_web_server_info_tabs_array` filter no longer causes a fatal error. It is skipped unless it renders itself.
+
 = 1.8.3 - 2026-10-05 =
 * Fix - Closing the review request with its X now hides it for 14 days for that user. It used to come back on the next Dashboard load.
 * Enhancement - WordPress 7.1.2 compatibility.

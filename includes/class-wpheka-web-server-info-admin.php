@@ -284,6 +284,12 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
          */
         public function wpheka_web_server_info_page_callback()
         {
+            // The menu entry hides the page from other users; the page checks too,
+            // since it prints phpinfo() and database settings.
+            if (!current_user_can(wpheka_web_server_info_capability())) {
+                wp_die(esc_html__('You do not have permission to view this page.', 'wpheka-web-server-information'), 403);
+            }
+
             $this->wpheka_web_server_info_count_view();
 
             // Tab navigation, not a state change: the value only selects which
@@ -315,31 +321,64 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
 
         /**
          * Init tab
+         *
+         * A tab with no class file of its own (for example one added through the
+         * wpheka_web_server_info_tabs_array filter) is skipped, not a fatal error.
+         * Such a tab renders its panel from its own info_page_{tab}_tab_init action.
+         *
+         * @param string $tab Tab slug.
          */
         public function tab_init($tab)
         {
-            $this->load_tab_class($tab);
-            $tab_class_name = 'WPHEKA_Info_Admin_' . ucfirst($tab);
-            new $tab_class_name($tab);
-        }
+            if (!$this->load_tab_class($tab)) {
+                return;
+            }
 
-        /**
-         * Load tab class
-         */
-        public function load_tab_class($tab_class_name = '')
-        {
-            $admin_settings_token = 'wpheka-info-admin';
-            if ('' != $tab_class_name) {
-                require_once WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-' . $admin_settings_token . '-' . $tab_class_name . '.php';
+            $tab_class_name = 'WPHEKA_Info_Admin_' . ucfirst($tab);
+            if (class_exists($tab_class_name, false)) {
+                new $tab_class_name($tab);
             }
         }
 
         /**
-         * Display version info in footer
+         * Load tab class
+         *
+         * @param string $tab_class_name Tab slug.
+         * @return bool Whether the tab's class file exists and was loaded.
          */
-        public function version_info_in_footer()
+        public function load_tab_class($tab_class_name = '')
+        {
+            $admin_settings_token = 'wpheka-info-admin';
+            $tab_class_name       = sanitize_key((string) $tab_class_name);
+            if ('' === $tab_class_name) {
+                return false;
+            }
+
+            $file = WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-' . $admin_settings_token . '-' . $tab_class_name . '.php';
+            if (!is_readable($file)) {
+                return false;
+            }
+
+            require_once $file;
+            return true;
+        }
+
+        /**
+         * Display version info in footer
+         *
+         * Only for users who can open the information page. Everyone else with
+         * wp-admin access, subscribers included, keeps WordPress' own footer text.
+         *
+         * @param string $content The footer text WordPress would show.
+         * @return string
+         */
+        public function version_info_in_footer($content = '')
         {
             global $wpdb;
+
+            if (!current_user_can(wpheka_web_server_info_capability())) {
+                return $content;
+            }
             $update     = core_update_footer();
             $wp_version = strpos($update, '<strong>') === 0 ? get_bloginfo('version') . ' (' . $update . ')' : get_bloginfo('version');
 
@@ -349,7 +388,7 @@ if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
                 $wp_version,
                 phpversion(),
                 empty($_SERVER['SERVER_SOFTWARE']) ? esc_html__('Unknown', 'wpheka-web-server-information') : sanitize_text_field(wp_unslash($_SERVER['SERVER_SOFTWARE'])),
-                $wpdb->get_var('SELECT VERSION();')
+                esc_html((string) $wpdb->get_var('SELECT VERSION();'))
             );
         }
     }

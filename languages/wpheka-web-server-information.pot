@@ -9,16 +9,16 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T17:40:06+00:00\n"
+"POT-Creation-Date: 2026-10-23T09:45:10+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wpheka-web-server-information\n"
 
 #. Plugin Name of the plugin
 #: wpheka-web-server-information.php
-#: includes/class-wpheka-web-server-info-admin.php:163
-#: includes/class-wpheka-web-server-info-admin.php:272
-#: includes/class-wpheka-web-server-info-admin.php:273
+#: includes/class-wpheka-web-server-info-admin.php:159
+#: includes/class-wpheka-web-server-info-admin.php:268
+#: includes/class-wpheka-web-server-info-admin.php:269
 msgid "Web Server Information"
 msgstr ""
 
@@ -92,45 +92,45 @@ msgstr ""
 msgid "Advanced Database Information"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:107
+#: includes/class-wpheka-info-admin-dbinfo.php:113
 msgid "Something went wrong!"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:133
-#: includes/class-wpheka-info-admin-dbinfo.php:155
-#: includes/class-wpheka-info-admin-dbinfo.php:175
-#: includes/class-wpheka-info-admin-dbinfo.php:198
-#: includes/class-wpheka-info-admin-dbinfo.php:248
-#: includes/class-wpheka-info-admin-dbinfo.php:274
+#: includes/class-wpheka-info-admin-dbinfo.php:139
+#: includes/class-wpheka-info-admin-dbinfo.php:161
+#: includes/class-wpheka-info-admin-dbinfo.php:181
+#: includes/class-wpheka-info-admin-dbinfo.php:204
+#: includes/class-wpheka-info-admin-dbinfo.php:254
+#: includes/class-wpheka-info-admin-dbinfo.php:280
 msgid "N/A"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:216
+#: includes/class-wpheka-info-admin-dbinfo.php:222
 msgid "PB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:218
+#: includes/class-wpheka-info-admin-dbinfo.php:224
 msgid "TB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:220
+#: includes/class-wpheka-info-admin-dbinfo.php:226
 msgid "GB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:222
+#: includes/class-wpheka-info-admin-dbinfo.php:228
 msgid "MB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:224
+#: includes/class-wpheka-info-admin-dbinfo.php:230
 msgid "KB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:226
+#: includes/class-wpheka-info-admin-dbinfo.php:232
 msgid "bytes"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:228
-#: includes/class-wpheka-web-server-info-admin.php:355
+#: includes/class-wpheka-info-admin-dbinfo.php:234
+#: includes/class-wpheka-web-server-info-admin.php:390
 msgid "Unknown"
 msgstr ""
 
@@ -170,29 +170,29 @@ msgstr ""
 msgid "Site's Document Root"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:121
+#: includes/class-wpheka-info-admin-webserver.php:123
 msgid "Settings saved."
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:127
+#: includes/class-wpheka-info-admin-webserver.php:129
 msgid "Settings"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:135
+#: includes/class-wpheka-info-admin-webserver.php:137
 msgid "Admin footer"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:145
+#: includes/class-wpheka-info-admin-webserver.php:147
 #: wpheka-web-server-information.php:170
 msgid "Show server details in the admin footer"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:148
+#: includes/class-wpheka-info-admin-webserver.php:150
 #: wpheka-web-server-information.php:171
 msgid "Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions."
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:154
+#: includes/class-wpheka-info-admin-webserver.php:156
 msgid "Save Changes"
 msgstr ""
 
@@ -209,21 +209,25 @@ msgid "Database Information"
 msgstr ""
 
 #. translators: 1: plugin name, 2: five-star rating link, 3: opening link tag to dismiss, 4: closing link tag
-#: includes/class-wpheka-web-server-info-admin.php:162
+#: includes/class-wpheka-web-server-info-admin.php:158
 #, php-format
 msgid "If %1$s is useful to you, please leave us a %2$s rating on WordPress.org. %3$sDon't ask again%4$s."
 msgstr ""
 
-#: includes/class-wpheka-web-server-info-admin.php:164
+#: includes/class-wpheka-web-server-info-admin.php:160
 msgid "five star"
 msgstr ""
 
-#: includes/class-wpheka-web-server-info-admin.php:299
+#: includes/class-wpheka-web-server-info-admin.php:290
+msgid "You do not have permission to view this page."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-admin.php:301
 msgid "WPHEKA Web Server Information"
 msgstr ""
 
 #. translators: 1: WordPress version, 2: PHP version, 3: server software, 4: MySQL version.
-#: includes/class-wpheka-web-server-info-admin.php:352
+#: includes/class-wpheka-web-server-info-admin.php:387
 #, php-format
 msgid "You are running WordPress %1$s | PHP %2$s | %3$s | MySQL %4$s"
 msgstr ""
@@ -232,20 +236,20 @@ msgstr ""
 msgid "Display"
 msgstr ""
 
-#: wpheka-web-server-information.php:212
+#: wpheka-web-server-information.php:256
 msgid "You do not have permission to change these settings."
 msgstr ""
 
-#: wpheka-web-server-information.php:216
+#: wpheka-web-server-information.php:260
 msgid "That link has expired. Please try again."
 msgstr ""
 
 #. translators: 1. URL link.
-#: wpheka-web-server-information.php:298
+#: wpheka-web-server-information.php:342
 #, php-format
 msgid "Web Server Information requires %s extension to be enabled."
 msgstr ""
 
-#: wpheka-web-server-information.php:425
+#: wpheka-web-server-information.php:469
 msgid "Information Page"
 msgstr ""

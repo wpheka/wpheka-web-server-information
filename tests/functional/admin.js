@@ -67,6 +67,16 @@ const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Pa
     const version = /PHP Version\s*<\/td>\s*<td[^>]*>\s*\d+\.\d+\.\d+|PHP Version \d+\.\d+\.\d+/i.test(html);
     return [r.status() === 200 && !phpError(html) && version && /mysqli|pdo_mysql/i.test(html), `status ${r.status()}, PHP version shown: ${version}`];
   });
+  await check('PHP Information tab: no cookie value is printed, the login cookie included', async () => {
+    const secret = 'wsiSecret' + Date.now();
+    await ctx.addCookies([{ name: 'zz_wsi_secret', value: secret, domain: 'localhost', path: '/' }]);
+    const r = await page.goto(`${PAGE}&tab=phpinfo`, { waitUntil: 'load' });
+    const html = await page.content();
+    const leaked = [secret, ...ids.admin_cookies.map(c => c.value)].filter(v => html.includes(v) || html.includes(encodeURIComponent(v)));
+    const rows = (html.match(/>\s*(HTTP_COOKIE|\$_SERVER\['HTTP_COOKIE'\]|\$_COOKIE\[[^<]*)\s*</g) || []);
+    await ctx.clearCookies({ name: 'zz_wsi_secret' });
+    return [r.status() === 200 && /PHP Version/.test(html) && leaked.length === 0 && rows.length === 0, `status ${r.status()}, leaked ${leaked.length}, cookie rows ${JSON.stringify(rows).slice(0, 200)}`];
+  });
   await check('Database Information tab: shows the database version and settings', async () => {
     const r = await page.goto(`${PAGE}&tab=dbinfo`, { waitUntil: 'load' });
     const html = await page.content();
@@ -134,6 +144,18 @@ const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Pa
     const r = await sp.goto(`${PAGE}&tab=phpinfo`, { waitUntil: 'load' });
     const html = await sp.content();
     return [!html.includes('PHP Version') && !html.includes(ids.php_version + '</'), `status ${r.status()}`];
+  });
+  // An author reaches wp-admin (WooCommerce sends subscribers to My Account instead)
+  // but cannot open the information page, so must not see the server versions.
+  await check("security: an author sees WordPress' own admin footer, not the server versions", async () => {
+    const actx = await browser.newContext(); await actx.addCookies(ids.author_cookies);
+    const ap = await actx.newPage(); ap.setDefaultTimeout(120000);
+    const r = await ap.goto(`${A}profile.php`, { waitUntil: 'load' });
+    // A missing footer must fail, not read as an empty, "clean" footer.
+    const found = await ap.locator('#footer-upgrade').count();
+    const text = found ? (await ap.locator('#footer-upgrade').textContent()).trim() : '';
+    await actx.close();
+    return [r.status() === 200 && found === 1 && !text.includes('You are running WordPress') && !text.includes('MySQL'), `status ${r.status()}, footer element ${found}, text "${text}"`];
   });
   await check('security: a subscriber cannot change the footer setting', async () => {
     const before = JSON.stringify(st('opt', 'wpheka_web_server_info_settings'));

@@ -194,6 +194,50 @@ function wpheka_web_server_info_footer_enabled()
     return (bool) wpheka_web_server_info_options()->get('footer_info', true);
 }
 
+/**
+ * The capability that opens the information page, saves its setting and sees the
+ * versions in the admin footer.
+ *
+ * One place for all three. The page used to follow the shared WPHEKA menu filter
+ * while the save always needed manage_options, so a site that lowered the filter
+ * let those users read phpinfo() but not save. Same filter and fallback as the
+ * framework's Menu::capability(), so the page and its menu entry always agree.
+ *
+ * @since 1.9
+ * @return string
+ */
+function wpheka_web_server_info_capability()
+{
+    $capability = apply_filters('wpheka_plugin_panel_menu_page_capability', 'manage_options');
+
+    return is_string($capability) && '' !== $capability ? $capability : 'manage_options';
+}
+
+/**
+ * Whether the current user may change the setting.
+ *
+ * A network-activated plugin keeps the setting once for the whole network, so
+ * changing it there needs a network admin, not any site's admin.
+ *
+ * @since 1.9
+ * @return bool
+ */
+function wpheka_web_server_info_can_save()
+{
+    if (!current_user_can(wpheka_web_server_info_capability())) {
+        return false;
+    }
+
+    if (
+        wpheka_web_server_info_framework_ready()
+        && \WPHEKA\Framework\V1\Core\Options::SCOPE_NETWORK === wpheka_web_server_info_options()->scope()
+    ) {
+        return current_user_can('manage_network_options');
+    }
+
+    return true;
+}
+
 add_action('admin_init', 'wpheka_web_server_info_save_settings');
 
 /**
@@ -208,7 +252,7 @@ function wpheka_web_server_info_save_settings()
         return;
     }
 
-    if (!current_user_can('manage_options')) {
+    if (!wpheka_web_server_info_can_save()) {
         wp_die(esc_html__('You do not have permission to change these settings.', 'wpheka-web-server-information'));
     }
 

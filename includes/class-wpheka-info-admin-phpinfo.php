@@ -38,6 +38,8 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Phpinfo', false ) ) :
 				$table->setAttribute( 'class', 'widefat' );
 			}
 
+			$this->remove_cookies( $html );
+
 			// We only need the <body>.
 			$xpath = new DOMXPath( $html );
 			$body = $xpath->query( '/html/body' );
@@ -69,6 +71,72 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Phpinfo', false ) ) :
 				wp_kses_allowed_html( 'post' ),
 				array_merge( wp_allowed_protocols(), array( 'data' ) )
 			);
+		}
+
+		/**
+		 * Take the viewer's cookies out of the phpinfo() output.
+		 *
+		 * The phpinfo() output holds the request's cookies, the WordPress login cookie
+		 * included, in the Environment, PHP Variables and HTTP headers tables.
+		 * A screenshot or a copy of this page posted in a support forum would
+		 * carry them. The rows that hold cookies are removed, and any cookie
+		 * value still found elsewhere on the page is replaced.
+		 *
+		 * @since 1.9
+		 * @param DOMDocument $html Parsed phpinfo() output.
+		 * @return void
+		 */
+		private function remove_cookies( DOMDocument $html ) {
+			$rows = array();
+			foreach ( $html->getElementsByTagName( 'tr' ) as $row ) {
+				$first = $row->getElementsByTagName( 'td' )->item( 0 );
+				if ( $first && preg_match( '/^(HTTP_COOKIE|\$_SERVER\[[\'"]HTTP_COOKIE[\'"]\]|\$_COOKIE\[.*\]|Cookie)$/i', trim( $first->textContent ) ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM property.
+					$rows[] = $row;
+				}
+			}
+			// Removed after the loop: removing while iterating a live node list skips rows.
+			foreach ( $rows as $row ) {
+				$row->parentNode->removeChild( $row ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM property.
+			}
+
+			$values = array();
+			if ( ! empty( $_SERVER['HTTP_COOKIE'] ) && is_string( $_SERVER['HTTP_COOKIE'] ) ) {
+				$values[] = wp_unslash( $_SERVER['HTTP_COOKIE'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only compared with page text, never output or stored.
+			}
+			foreach ( $_COOKIE as $value ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only compared with page text, never output or stored.
+				if ( is_string( $value ) ) {
+					$values[] = wp_unslash( $value );
+					$values[] = rawurlencode( wp_unslash( $value ) );
+				}
+			}
+			// Short values (a "1" or a "yes") would blank ordinary settings; real secrets are long.
+			$values = array_unique(
+				array_filter(
+					$values,
+					static function ( $value ) {
+						return strlen( $value ) >= 8;
+					}
+				)
+			);
+			if ( ! $values ) {
+				return;
+			}
+			usort(
+				$values,
+				static function ( $a, $b ) {
+					return strlen( $b ) - strlen( $a );
+				}
+			);
+
+			$xpath = new DOMXPath( $html );
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM properties.
+			foreach ( $xpath->query( '//text()' ) as $text ) {
+				$replaced = str_replace( $values, '[removed]', $text->nodeValue );
+				if ( $replaced !== $text->nodeValue ) {
+					$text->nodeValue = $replaced;
+				}
+			}
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 
 	}

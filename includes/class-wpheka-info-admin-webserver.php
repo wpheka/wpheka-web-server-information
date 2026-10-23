@@ -102,7 +102,9 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 		 * @return void
 		 */
 		private function render_settings() {
-			if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'wpheka_web_server_info_footer_enabled' ) ) {
+			// The same check as the save, so nobody sees a form they cannot submit
+			// (a site admin on a network where the setting is network-wide).
+			if ( ! function_exists( 'wpheka_web_server_info_can_save' ) || ! wpheka_web_server_info_can_save() ) {
 				return;
 			}
 

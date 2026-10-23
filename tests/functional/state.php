@@ -3,7 +3,8 @@
  * state.php save|restore|setup|cleanup|user-get <key>|user-clear <key>|opt <name>|location
  * One helper for the whole suite. save/restore keep the site's own settings,
  * view counter and location cache; setup creates an administrator and a
- * subscriber with login cookies.
+ * subscriber with login cookies, plus an author (reaches wp-admin, unlike a
+ * subscriber on a WooCommerce site) for the admin footer check.
  */
 require_once ABSPATH . 'wp-admin/includes/user.php';
 $dir  = rtrim( getenv( 'WSI_STATE' ), '/' );
@@ -21,7 +22,7 @@ if ( 'setup' === $cmd ) {
 	if ( ! $ids['was_active'] ) {
 		activate_plugin( 'wpheka-web-server-information/wpheka-web-server-information.php' );
 	}
-	foreach ( array( 'admin' => 'administrator', 'sub' => 'subscriber' ) as $key => $role ) {
+	foreach ( array( 'admin' => 'administrator', 'sub' => 'subscriber', 'author' => 'author' ) as $key => $role ) {
 		$uid = wp_insert_user( array( 'user_login' => 'zz_wsi_' . $key, 'user_pass' => wp_generate_password( 24 ), 'user_email' => 'zz-wsi-' . $key . '@example.invalid', 'role' => $role ) );
 		$exp = time() + 2 * HOUR_IN_SECONDS;
 		$ids[ $key ]              = $uid;
@@ -42,7 +43,7 @@ if ( 'setup' === $cmd ) {
 		'__unset__' === $value ? delete_option( $opt ) : update_option( $opt, $value );
 	}
 	false === ( $ids['location_cache'] ?? false ) ? delete_transient( 'wpheka_web_server_location' ) : set_transient( 'wpheka_web_server_location', $ids['location_cache'], WEEK_IN_SECONDS );
-	foreach ( array( 'admin', 'sub' ) as $key ) {
+	foreach ( array( 'admin', 'sub', 'author' ) as $key ) {
 		if ( ! empty( $ids[ $key ] ) ) {
 			wp_delete_user( $ids[ $key ] );
 		}
