@@ -2,8 +2,8 @@
 Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
 Requires at least: 5.1
-Tested up to: 7.1.2
-Stable tag: 1.8.3
+Tested up to: 7.1.3
+Stable tag: 1.9.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://www.paypal.me/AKSHAYASWAROOP
@@ -14,47 +14,63 @@ Web Server Information plugin will give you detailed information about your host
 
 ### 🖥️ FEATURES
 
-* Display **server OS**
-* Display **server software**
-* Display **server IP address**
-* Display **server port**
-* Display **server location** detected by ip address using [IP-API.com](https://ip-api.com/docs/api:json) .See [Terms and Policies](https://ip-api.com/docs/legal).
-* Display **server hostname**
-* Display **server document root**
-* Detailed information about the **PHP version** you are using and **installed modules**.
-* Detailed information about your **Database**.
-* Display **PHP, Mysql, Web server, WordPress version** info in admin footer.
+* **Overview at a glance:** your PHP version, database, web server and memory limit, then the server, PHP and database details that matter most for a WordPress site.
+* **Server details:** OS, software, IP address, port, hostname, document root and **server location**. The location is looked up from the server's IP address with [IP-API.com](https://ip-api.com/docs/api:json). See their [Terms and Policies](https://ip-api.com/docs/legal).
+* **Every PHP setting and module**, grouped by module, with a search box.
+* **Every database variable**, with a search box and a Refresh button that reads the values again.
+* **Server versions in the admin footer:** WordPress, PHP, web server and MySQL. Only users who can open the page see them. You can switch it off.
+* **Safe to share:** the PHP tab leaves out request headers and cookies, so a screenshot posted in a support forum carries no login cookie.
 
-If you enjoyed this plugin then please put a review, that will encourage me to bring some more …
+If the plugin helps you, a review on WordPress.org helps other site owners find it.
 
 == Installation ==
 
 1. Upload 'wpheka-web-server-information' to the '/wp-content/plugins/' directory or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Admin area -> WPHEKA -> Web Server Information
+3. Go to WPHEKA > Server Info in wp-admin.
 4. Done!
 
 == Frequently Asked Questions ==
 
-= How It Works? =
-*check installation*
+= Where do I find it? =
+In wp-admin, under WPHEKA > Server Info. Administrators can open it.
+
+= Why does the server location say "reserved range" or "private range"? =
+The server's IP address is a local or private one (for example on a test site), so IP-API.com can't place it. On a live server it shows the city and country.
+
+= How do I hide the server versions in the admin footer? =
+Open WPHEKA > Server Info, go to Settings on the Overview tab, switch off "Server details in the admin footer" and save.
+
+= The database values look out of date. =
+They are read once a week and kept until then. Open the Database tab and click Refresh to read them again.
 
 == Screenshots ==
 
 1. Plugin information link.
-2. Plugin Overview page.
-3. Plugin PHP Info page.
-4. Plugin Database Info page.
+2. The Overview tab: stats, server, PHP and database details, plus the footer setting.
+3. The PHP tab: every PHP setting and module, with search.
+4. The Database tab: database details and every variable, with search and Refresh.
 5. Server info in WP Admin footer.
 
 == Changelog ==
 
-= Unreleased =
+= 1.9.0 - 2026-10-27 =
+* Feature - A new page design, matching the other WPHEKA plugins: Overview, PHP, Database and Help tabs. The menu item is now called "Server Info".
+* Feature - The Overview tab shows your PHP version, database, web server and memory limit at a glance. Below are summaries of the PHP limits and database details that matter most.
+* Feature - The PHP and Database tabs have a search box.
+* Feature - A Refresh button on the Database tab reads the server and database details again. Before, the database variables were read once and never updated.
+* Feature - A Help tab with links to the documentation, the support forum and the changelog.
+* Security - The PHP tab no longer shows PHP's Environment and PHP Variables sections or Apache's request headers. They held the request's headers and cookies. Hosts often keep passwords in environment variables too.
 * Security - The server versions in the admin footer now show only to users who can open the information page. Authors, editors and other users with wp-admin access see WordPress' own footer again.
 * Security - The PHP tab no longer prints your cookies, the login cookie included. A screenshot or a copy of the page shared for support is safe to post.
 * Security - On a network where the plugin is network-activated, only a network admin can change the network-wide footer setting.
 * Fix - The information page and its setting now use the same capability. A site that changed who can open the page through the `wpheka_plugin_panel_menu_page_capability` filter let those users read the page but not save.
-* Fix - A tab added through the `wpheka_web_server_info_tabs_array` filter no longer causes a fatal error. It is skipped unless it renders itself.
+* Fix - Shows "Not available" instead of "ERROR IP096T" when the server's IP address or location can't be read.
+* Fix - Shows "64-bit PHP" instead of "64Bit OS". The value describes the PHP build, not the operating system.
+* Fix - A failed database query no longer causes a PHP warning on the Database tab.
+* Fix - The admin footer reads the cached database version instead of querying the database on every admin page.
+* Developer - Removed the `wpheka_web_server_info_tabs_array` filter and the `info_page_{tab}_tab_init` actions. A tab added through the filter caused a fatal error. No plugin used them.
+* Enhancement - WordPress 7.1.3 compatibility.
 
 = 1.8.3 - 2026-10-05 =
 * Fix - Closing the review request with its X now hides it for 14 days for that user. It used to come back on the next Dashboard load.

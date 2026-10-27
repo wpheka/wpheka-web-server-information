@@ -6,7 +6,7 @@
  * @author      WPHEKA
  * @link        https://www.wpheka.com
  * @since       1.0
- * @version     1.0
+ * @version     1.9
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -14,16 +14,9 @@ defined( 'ABSPATH' ) || exit;
 if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 
 	/**
-	 * WPHEKA_Info_Admin_Webserver Class.
+	 * The web server facts shown on the Overview tab. Reads only; the page prints them.
 	 */
 	class WPHEKA_Info_Admin_Webserver {
-
-		/**
-		 * Setting tabs.
-		 *
-		 * @var array
-		 */
-		private $tabs = array();
 
 		/**
 		 * One $_SERVER value, safe to print.
@@ -38,7 +31,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 		 * @param string $key $_SERVER key.
 		 * @return string Empty when the key is absent.
 		 */
-		private function server_var( $key ) {
+		public function server_var( $key ) {
 			if ( ! isset( $_SERVER[ $key ] ) ) {
 				return '';
 			}
@@ -47,115 +40,54 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 		}
 
 		/**
-		 * WPHEKA_Info_Admin_Webserver Constructor.
-		 */
-		public function __construct() {
-			?>
-			<h1><?php esc_html_e( 'Server Overview', 'wpheka-web-server-information' ); ?></h1>
-			<hr />
-			<table class="widefat">
-				<tbody>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Server OS', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( $this->server_os() ); ?>&nbsp;/&nbsp;<?php echo esc_html( ( PHP_INT_SIZE * 8 ) . __( 'Bit OS', 'wpheka-web-server-information' ) ); ?></td>
-					</tr>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Server Software', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( $this->server_var( 'SERVER_SOFTWARE' ) ); ?></td>
-					</tr>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Server IP', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( $this->validate_ip_address( $this->check_server_ip() ) ? $this->check_server_ip() : 'ERROR IP096T' ); ?></td>
-					</tr>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Server Port', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( $this->server_var( 'SERVER_PORT' ) ); ?></td>
-					</tr>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Server Location', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( $this->check_server_location() ); ?></td>
-					</tr>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Server Hostname', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( (string) gethostname() ); ?></td>
-					</tr>
-					<tr>
-						<td class="e"><?php esc_html_e( 'Site\'s Document Root', 'wpheka-web-server-information' ); ?></td>
-						<td class="v"><?php echo esc_html( $this->server_var( 'DOCUMENT_ROOT' ) . '/' ); ?></td>
-					</tr>
-				</tbody>
-			</table>
-			<?php
-			$this->render_settings();
-		}
-
-		/**
-		 * The plugin's one setting, rendered at the foot of this tab.
+		 * The Server section, as kit key/value rows.
 		 *
-		 * Deliberately not a settings page of its own. There is a single option,
-		 * and a whole page -- or a fourth tab -- holding one checkbox reads as
-		 * thinner than the setting deserves. Screen Options would be the native
-		 * home for a show/hide preference, but it is per-user and per-screen,
-		 * while this governs every admin page for everyone.
-		 *
-		 * @since 1.8
-		 * @return void
+		 * @since 1.9
+		 * @return array[]
 		 */
-		private function render_settings() {
-			// The same check as the save, so nobody sees a form they cannot submit
-			// (a site admin on a network where the setting is network-wide).
-			if ( ! function_exists( 'wpheka_web_server_info_can_save' ) || ! wpheka_web_server_info_can_save() ) {
-				return;
-			}
+		public function rows() {
+			$na       = __( 'Not available', 'wpheka-web-server-information' );
+			$ip       = $this->check_server_ip();
+			$host     = (string) gethostname();
+			$root     = $this->server_var( 'DOCUMENT_ROOT' );
+			$or_na    = static function ( $value ) use ( $na ) {
+				return '' === (string) $value ? $na : (string) $value;
+			};
+			$valid_ip = $this->validate_ip_address( $ip );
 
-			/*
-			 * No nonce on this read, deliberately. It is a display flag set by
-			 * the redirect after a successful save, and it changes nothing --
-			 * the worst a crafted URL achieves is a spurious "Settings saved"
-			 * notice. The save itself verifies both a nonce and the capability;
-			 * that is the state-changing path. WordPress core uses the same
-			 * pattern for settings-updated.
-			 */
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flag, no state change.
-			if ( isset( $_GET['wpheka-updated'] ) ) {
-				printf(
-					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-					esc_html__( 'Settings saved.', 'wpheka-web-server-information' )
-				);
-			}
-
-			$enabled = wpheka_web_server_info_footer_enabled();
-			?>
-			<h2><?php esc_html_e( 'Settings', 'wpheka-web-server-information' ); ?></h2>
-			<hr />
-			<form method="post" action="">
-				<?php wp_nonce_field( 'wpheka_wsi_save', 'wpheka_wsi_nonce' ); ?>
-				<table class="form-table" role="presentation">
-					<tbody>
-						<tr>
-							<th scope="row">
-								<?php esc_html_e( 'Admin footer', 'wpheka-web-server-information' ); ?>
-							</th>
-							<td>
-								<label for="wpheka_wsi_footer_info">
-									<input
-										type="checkbox"
-										name="wpheka_wsi_footer_info"
-										id="wpheka_wsi_footer_info"
-										value="1"
-										<?php checked( $enabled ); ?> />
-									<?php esc_html_e( 'Show server details in the admin footer', 'wpheka-web-server-information' ); ?>
-								</label>
-								<p class="description">
-									<?php esc_html_e( 'Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions.', 'wpheka-web-server-information' ); ?>
-								</p>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<?php submit_button( __( 'Save Changes', 'wpheka-web-server-information' ) ); ?>
-			</form>
-			<?php
+			return array(
+				array(
+					'label' => __( 'Server OS', 'wpheka-web-server-information' ),
+					'value' => $or_na( $this->server_os() ),
+				),
+				array(
+					'label' => __( 'Server software', 'wpheka-web-server-information' ),
+					'value' => $or_na( $this->server_var( 'SERVER_SOFTWARE' ) ),
+				),
+				array(
+					'label' => __( 'Server IP', 'wpheka-web-server-information' ),
+					'value' => $valid_ip ? $ip : $na,
+					'code'  => $valid_ip,
+				),
+				array(
+					'label' => __( 'Server port', 'wpheka-web-server-information' ),
+					'value' => $or_na( $this->server_var( 'SERVER_PORT' ) ),
+				),
+				array(
+					'label' => __( 'Server location', 'wpheka-web-server-information' ),
+					'value' => $or_na( $this->check_server_location() ),
+				),
+				array(
+					'label' => __( 'Hostname', 'wpheka-web-server-information' ),
+					'value' => $or_na( $host ),
+					'code'  => '' !== $host,
+				),
+				array(
+					'label' => __( 'Document root', 'wpheka-web-server-information' ),
+					'value' => $or_na( $root ),
+					'code'  => '' !== $root,
+				),
+			);
 		}
 
 		/**
@@ -166,7 +98,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 		public function server_os() {
 			$server_os = get_transient( 'wpheka_web_server_os' );
 
-			if ( $server_os === false ) {
+			if ( false === $server_os ) {
 				$os_detail    = php_uname();
 				$just_os_name = explode( ' ', trim( $os_detail ) );
 				$server_os    = $just_os_name[0];
@@ -178,15 +110,17 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 
 		/**
 		 * Check server ip.
+		 *
+		 * @return string
 		 */
 		public function check_server_ip() {
-			return trim( gethostbyname( gethostname() ) );
+			return trim( gethostbyname( (string) gethostname() ) );
 		}
 
 		/**
 		 * Call IP-API.com to get server ip details.
 		 *
-		 * @return string
+		 * @return string Empty when the location is not known.
 		 */
 		public function check_server_location() {
 			// get the server ip.
@@ -194,7 +128,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 
 			$server_location = get_transient( 'wpheka_web_server_location' );
 
-			if ( $server_location === false ) {
+			if ( false === $server_location ) {
 				// lets validate the ip.
 				if ( $this->validate_ip_address( $ip ) ) {
 					/*
@@ -234,25 +168,21 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 						set_transient( 'wpheka_web_server_location', $server_location, HOUR_IN_SECONDS );
 					}
 				} else {
-					$server_location = 'ERROR IP096T';
+					$server_location = '';
 				}
 			}
 
-			return $server_location;
+			return (string) $server_location;
 		}
 
 		/**
 		 * Validate IP address.
 		 *
-		 * @param  string
+		 * @param string $ip Address.
 		 * @return bool
 		 */
 		public function validate_ip_address( $ip ) {
-			if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) === false ) {
-				return true; // $ip is a valid IP address.
-			} else {
-				return false; // $ip is NOT a valid IP address.
-			}
+			return false !== filter_var( $ip, FILTER_VALIDATE_IP );
 		}
 	}
 

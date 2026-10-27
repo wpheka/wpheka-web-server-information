@@ -2,23 +2,24 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Web Server Information 1.8.3\n"
+"Project-Id-Version: Web Server Information 1.9.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpheka-web-server-information\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T09:45:10+02:00\n"
+"POT-Creation-Date: 2026-10-27T08:59:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wpheka-web-server-information\n"
 
 #. Plugin Name of the plugin
 #: wpheka-web-server-information.php
-#: includes/class-wpheka-web-server-info-admin.php:159
-#: includes/class-wpheka-web-server-info-admin.php:268
-#: includes/class-wpheka-web-server-info-admin.php:269
+#: includes/class-wpheka-web-server-info-admin.php:108
+#: includes/class-wpheka-web-server-info-admin.php:198
+#: includes/class-wpheka-web-server-info-page.php:149
+#: includes/wpheka-ui/class-catalogue.php:70
 msgid "Web Server Information"
 msgstr ""
 
@@ -42,214 +43,686 @@ msgstr ""
 msgid "https://www.wpheka.com"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:26
-msgid "This page will show you the in-depth information about your database"
+#: includes/class-wpheka-info-admin-dbinfo.php:78
+msgid "Database software"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:28
-msgid "Basic Database Information"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-dbinfo.php:32
-#: includes/class-wpheka-info-admin-dbinfo.php:38
-#: includes/class-wpheka-info-admin-dbinfo.php:75
-#: includes/class-wpheka-info-admin-dbinfo.php:81
-msgid "Variable Name"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-dbinfo.php:33
-#: includes/class-wpheka-info-admin-dbinfo.php:39
-#: includes/class-wpheka-info-admin-dbinfo.php:76
 #: includes/class-wpheka-info-admin-dbinfo.php:82
-msgid "Value"
+msgid "Database version"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:44
-msgid "Database Software"
+#: includes/class-wpheka-info-admin-dbinfo.php:86
+msgid "Max connections"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:48
-msgid "Database Version"
+#: includes/class-wpheka-info-admin-dbinfo.php:90
+msgid "Max packet size"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:52
-msgid "Maximum No. of Connections"
+#: includes/class-wpheka-info-admin-dbinfo.php:94
+msgid "Database size"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:56
-msgid "Maximum Packet Size"
+#: includes/class-wpheka-info-admin-dbinfo.php:98
+msgid "Index size"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:60
-msgid "Database Disk Usage"
+#: includes/class-wpheka-info-admin-dbinfo.php:154
+#: includes/class-wpheka-info-admin-dbinfo.php:176
+#: includes/class-wpheka-info-admin-dbinfo.php:194
+#: includes/class-wpheka-info-admin-dbinfo.php:215
+#: includes/class-wpheka-info-admin-dbinfo.php:278
+#: includes/class-wpheka-info-admin-dbinfo.php:299
+#: includes/class-wpheka-info-admin-webserver.php:49
+#: includes/class-wpheka-web-server-info-page.php:283
+msgid "Not available"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:64
-msgid "Index Disk Usage"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-dbinfo.php:71
-msgid "Advanced Database Information"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-dbinfo.php:113
-msgid "Something went wrong!"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-dbinfo.php:139
-#: includes/class-wpheka-info-admin-dbinfo.php:161
-#: includes/class-wpheka-info-admin-dbinfo.php:181
-#: includes/class-wpheka-info-admin-dbinfo.php:204
-#: includes/class-wpheka-info-admin-dbinfo.php:254
-#: includes/class-wpheka-info-admin-dbinfo.php:280
-msgid "N/A"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-dbinfo.php:222
+#: includes/class-wpheka-info-admin-dbinfo.php:233
 msgid "PB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:224
+#: includes/class-wpheka-info-admin-dbinfo.php:235
 msgid "TB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:226
+#: includes/class-wpheka-info-admin-dbinfo.php:237
 msgid "GB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:228
+#: includes/class-wpheka-info-admin-dbinfo.php:239
 msgid "MB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:230
+#: includes/class-wpheka-info-admin-dbinfo.php:241
 msgid "KB"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:232
+#: includes/class-wpheka-info-admin-dbinfo.php:243
 msgid "bytes"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-dbinfo.php:234
-#: includes/class-wpheka-web-server-info-admin.php:390
+#: includes/class-wpheka-info-admin-dbinfo.php:245
+#: includes/class-wpheka-web-server-info-admin.php:246
 msgid "Unknown"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:54
-msgid "Server Overview"
+#: includes/class-wpheka-info-admin-phpinfo.php:61
+msgid "General"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:59
-msgid "Server OS"
+#: includes/class-wpheka-info-admin-phpinfo.php:64
+#: includes/class-wpheka-web-server-info-page.php:229
+msgid "PHP version"
+msgstr ""
+
+#. translators: %s: the value set in php.ini.
+#: includes/class-wpheka-info-admin-phpinfo.php:104
+#, php-format
+msgid "Default: %s"
 msgstr ""
 
 #: includes/class-wpheka-info-admin-webserver.php:60
-msgid "Bit OS"
+msgid "Server OS"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:63
-msgid "Server Software"
+#: includes/class-wpheka-info-admin-webserver.php:64
+msgid "Server software"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:67
+#: includes/class-wpheka-info-admin-webserver.php:68
 msgid "Server IP"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:71
-msgid "Server Port"
+#: includes/class-wpheka-info-admin-webserver.php:73
+msgid "Server port"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:75
-msgid "Server Location"
+#: includes/class-wpheka-info-admin-webserver.php:77
+msgid "Server location"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:79
-msgid "Server Hostname"
+#: includes/class-wpheka-info-admin-webserver.php:81
+msgid "Hostname"
 msgstr ""
 
-#: includes/class-wpheka-info-admin-webserver.php:83
-msgid "Site's Document Root"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-webserver.php:123
-msgid "Settings saved."
-msgstr ""
-
-#: includes/class-wpheka-info-admin-webserver.php:129
-msgid "Settings"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-webserver.php:137
-msgid "Admin footer"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-webserver.php:147
-#: wpheka-web-server-information.php:170
-msgid "Show server details in the admin footer"
-msgstr ""
-
-#: includes/class-wpheka-info-admin-webserver.php:150
-#: wpheka-web-server-information.php:171
-msgid "Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions."
-msgstr ""
-
-#: includes/class-wpheka-info-admin-webserver.php:156
-msgid "Save Changes"
-msgstr ""
-
-#: includes/class-wpheka-web-server-info-admin.php:37
-msgid "Overview"
-msgstr ""
-
-#: includes/class-wpheka-web-server-info-admin.php:38
-msgid "PHP Information"
-msgstr ""
-
-#: includes/class-wpheka-web-server-info-admin.php:39
-msgid "Database Information"
+#: includes/class-wpheka-info-admin-webserver.php:86
+msgid "Document root"
 msgstr ""
 
 #. translators: 1: plugin name, 2: five-star rating link, 3: opening link tag to dismiss, 4: closing link tag
-#: includes/class-wpheka-web-server-info-admin.php:158
+#: includes/class-wpheka-web-server-info-admin.php:107
 #, php-format
 msgid "If %1$s is useful to you, please leave us a %2$s rating on WordPress.org. %3$sDon't ask again%4$s."
 msgstr ""
 
-#: includes/class-wpheka-web-server-info-admin.php:160
+#: includes/class-wpheka-web-server-info-admin.php:109
 msgid "five star"
 msgstr ""
 
-#: includes/class-wpheka-web-server-info-admin.php:290
+#: includes/class-wpheka-web-server-info-admin.php:199
+#: includes/class-wpheka-web-server-info-page.php:158
+msgid "Server Info"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-admin.php:215
+#: includes/class-wpheka-web-server-info-page.php:97
 msgid "You do not have permission to view this page."
 msgstr ""
 
-#: includes/class-wpheka-web-server-info-admin.php:301
-msgid "WPHEKA Web Server Information"
-msgstr ""
-
 #. translators: 1: WordPress version, 2: PHP version, 3: server software, 4: MySQL version.
-#: includes/class-wpheka-web-server-info-admin.php:387
+#: includes/class-wpheka-web-server-info-admin.php:243
 #, php-format
 msgid "You are running WordPress %1$s | PHP %2$s | %3$s | MySQL %4$s"
 msgstr ""
 
-#: wpheka-web-server-information.php:168
+#: includes/class-wpheka-web-server-info-page.php:156
+#: includes/wpheka-ui/class-page.php:228
+msgid "Free"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:157
+msgid "Your server, PHP and database settings in one place."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:160
+msgid "Docs"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:161
+msgid "Support"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:162
+#: includes/class-wpheka-web-server-info-page.php:470
+msgid "What's new"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:164
+msgid "Rate on WordPress.org"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:166
+msgid "Overview"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:167
+#: includes/class-wpheka-web-server-info-page.php:288
+#: includes/class-wpheka-web-server-info-page.php:319
+#: includes/class-wpheka-web-server-info-page.php:332
+msgid "PHP"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:168
+#: includes/class-wpheka-web-server-info-page.php:295
+#: includes/class-wpheka-web-server-info-page.php:320
+#: includes/class-wpheka-web-server-info-page.php:336
+#: includes/class-wpheka-web-server-info-page.php:438
+msgid "Database"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:169
+#: includes/wpheka-ui/class-page.php:81
+msgid "Help"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:176
+msgid "The setting could not be saved because the WPHEKA framework did not load. Reinstall the plugin, then try again."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:213
+msgid "Not set"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:233
+msgid "PHP build"
+msgstr ""
+
+#. translators: %d: 32 or 64.
+#: includes/class-wpheka-web-server-info-page.php:235
+#, php-format
+msgid "%d-bit PHP"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:238
+#: includes/class-wpheka-web-server-info-page.php:308
+msgid "Memory limit"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:240
+msgid "In wp-admin. WordPress raises it here, so the front end can be lower."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:243
+msgid "Max execution time"
+msgstr ""
+
+#. translators: %s: number of seconds.
+#: includes/class-wpheka-web-server-info-page.php:245
+msgid "No limit"
+msgstr ""
+
+#. translators: %s: number of seconds.
+#: includes/class-wpheka-web-server-info-page.php:245
+#, php-format
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-wpheka-web-server-info-page.php:248
+msgid "Max upload size"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:252
+msgid "Post max size"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:256
+msgid "Max input vars"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:260
+msgid "cURL"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:261
+#: includes/class-wpheka-web-server-info-page.php:265
+msgid "Not installed"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:264
+msgid "OPcache"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:265
+#: includes/class-wpheka-web-server-info-page.php:365
+msgid "On"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:265
+#: includes/class-wpheka-web-server-info-page.php:365
+msgid "Off"
+msgstr ""
+
+#. translators: %d: 32 or 64.
+#: includes/class-wpheka-web-server-info-page.php:292
+#, php-format
+msgid "%d-bit build"
+msgstr ""
+
+#. translators: 1: data size, 2: index size, for example "412 MB".
+#: includes/class-wpheka-web-server-info-page.php:299
+#, php-format
+msgid "%1$s data, %2$s indexes"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:302
+msgid "Web server"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:312
+msgid "PHP memory limit in wp-admin"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:318
+#: includes/class-wpheka-web-server-info-page.php:328
+msgid "Server"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:321
+#: includes/class-wpheka-web-server-info-page.php:360
+#: includes/class-wpheka-web-server-info-page.php:374
+#: includes/class-wpheka-web-server-info-page.php:390
+msgid "Settings"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:328
+msgid "Your hosting server at a glance."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:332
+msgid "The PHP limits that matter most for a WordPress site. The PHP tab has every setting."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:336
+msgid "The Database tab has every database setting."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:342
+msgid "Review and help"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:343
+msgid "Handy for support?"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:343
+msgid "A quick review helps other site owners find Web Server Information."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:346
+msgid "Read the documentation"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:347
+msgid "Ask in the support forum"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:348
+msgid "Contact WPHEKA"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:363
+#: includes/class-wpheka-web-server-info-page.php:377
+#: includes/class-wpheka-web-server-info-page.php:395
+msgid "Server details in the admin footer"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:364
+msgid "Only a network administrator can change this setting."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:378
+msgid "This setting cannot be changed because the WPHEKA framework did not load. Reinstall the plugin to fix it. The footer keeps showing the server details."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:379
+msgid "Unavailable"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:396
+msgid "Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions. Only users who can open this page see them."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:401
+#: includes/wpheka-ui/class-page.php:252
+msgid "Save changes"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:413
+msgid "Search PHP settings and extensions"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:420
+#: includes/class-wpheka-web-server-info-page.php:452
+msgid "Nothing matches"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:420
+msgid "Try another word. Clear the search to see everything."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:435
+msgid "Server and database details were read again."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:438
+msgid "Read once a week and kept until then. Refresh reads them again now."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:442
+msgid "All database variables"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:442
+msgid "Every setting your database server reports."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:444
+msgid "Search database variables"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:448
+msgid "Refresh"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:452
+msgid "Try another word. Clear the search to see every variable."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:454
+msgid "Could not read the database variables."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:454
+msgid "Your database user may not be allowed to read them. Ask your host."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:468
+msgid "Documentation"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:468
+msgid "What each value means and where your host sets it."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:469
+msgid "Support forum"
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:469
+msgid "Ask a question. The developers who built the plugin answer."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:470
+msgid "Every change in each version, in plain words."
+msgstr ""
+
+#: includes/class-wpheka-web-server-info-page.php:474
+#: includes/wpheka-ui/class-catalogue.php:121
+#: includes/wpheka-ui/class-page.php:83
+#: includes/wpheka-ui/class-page.php:103
+#: includes/wpheka-ui/class-page.php:179
+#: includes/wpheka-ui/class-page.php:192
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:31
+msgid "Edit Orders for WooCommerce"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:32
+#: includes/wpheka-ui/class-catalogue.php:50
+#: includes/wpheka-ui/class-catalogue.php:57
+msgid "Order management"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:33
+msgid "Edit paid orders and settle the difference with automatic refunds and pay links."
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:39
+msgid "Moneris Payment Gateway Pro"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:40
+#: includes/wpheka-ui/class-catalogue.php:78
+msgid "Payments · Canada"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:41
+msgid "Subscriptions, saved cards, Moneris Checkout and 3-D Secure for Canadian stores."
+msgstr ""
+
+#. translators: %s: price.
+#: includes/wpheka-ui/class-catalogue.php:43
+#, php-format
+msgid "From %s/year"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:49
+msgid "Search Orders By Product"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:51
+msgid "Find every order that contains a product, variation, SKU or category."
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:56
+msgid "WC Backorder Split"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:58
+msgid "Ship what is in stock now and move backordered items to their own order."
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:63
+msgid "Request For Quote"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:64
+msgid "Sales"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:65
+msgid "Let customers ask for a price with a quote list. Hide prices when you need to."
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:71
+msgid "Tools"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:72
+msgid "Your server, PHP and database details on one screen, ready for support."
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:77
+msgid "Moneris Payment Gateway"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:79
+msgid "Take Moneris card payments on your own checkout, block or classic."
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:121
+msgid "Learn more"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:126
+msgid "Installed"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:130
+msgid "Installed, not active"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:134
+msgid "Activate"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:139
+msgid "Install now"
+msgstr ""
+
+#: includes/wpheka-ui/class-catalogue.php:143
+msgid "View"
+msgstr ""
+
+#: includes/wpheka-ui/class-fields.php:451
+msgid "No settings match"
+msgstr ""
+
+#: includes/wpheka-ui/class-fields.php:451
+msgid "Try another word, or clear the search to see every setting."
+msgstr ""
+
+#. translators: %s: number of minutes.
+#: includes/wpheka-ui/class-page.php:40
+#, php-format
+msgid "%s minute"
+msgstr ""
+
+#. translators: %s: number of minutes.
+#: includes/wpheka-ui/class-page.php:42
+#, php-format
+msgid "%s minutes"
+msgstr ""
+
+#. translators: %s: number of hours.
+#: includes/wpheka-ui/class-page.php:44
+#, php-format
+msgid "%s hour"
+msgstr ""
+
+#. translators: %s: number of hours.
+#: includes/wpheka-ui/class-page.php:46
+#, php-format
+msgid "%s hours"
+msgstr ""
+
+#. translators: %s: number of days.
+#: includes/wpheka-ui/class-page.php:48
+#, php-format
+msgid "%s day"
+msgstr ""
+
+#. translators: %s: number of days.
+#: includes/wpheka-ui/class-page.php:50
+#, php-format
+msgid "%s days"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:130
+msgid "At a glance"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:160
+msgid "Settings sections"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:162
+msgid "Search settings"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:179
+msgid "Leave a review"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:180
+msgid "Takes about a minute on WordPress.org"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:190
+msgid "Need a hand?"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:216
+msgid "More from WPHEKA"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:217
+msgid "WooCommerce plugins trusted since 2017, with 64,000+ downloads."
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:218
+msgid "Previous plugins"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:219
+msgid "Next plugins"
+msgstr ""
+
+#. translators: %s: WPHEKA link.
+#: includes/wpheka-ui/class-page.php:241
+#, php-format
+msgid "Made with care by %s · WooCommerce plugins since 2017"
+msgstr ""
+
+#. translators: %s: plugin name.
+#: includes/wpheka-ui/class-page.php:245
+#, php-format
+msgid "Enjoying %s?"
+msgstr ""
+
+#. translators: %s: plugin name.
+#: includes/wpheka-ui/class-page.php:245
+msgid "Rate it"
+msgstr ""
+
+#. translators: %s: plugin name.
+#: includes/wpheka-ui/class-page.php:245
+msgid "five stars on WordPress.org (opens in a new tab)"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:250
+msgid "Unsaved changes"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:251
+msgid "Discard"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:259
+msgid "Dismiss"
+msgstr ""
+
+#: includes/wpheka-ui/class-page.php:263
+msgid "Settings saved"
+msgstr ""
+
+#: wpheka-web-server-information.php:170
 msgid "Display"
 msgstr ""
 
-#: wpheka-web-server-information.php:256
+#: wpheka-web-server-information.php:172
+msgid "Show server details in the admin footer"
+msgstr ""
+
+#: wpheka-web-server-information.php:173
+msgid "Replaces the WordPress version text in the footer of every admin page with the WordPress, PHP, server and MySQL versions."
+msgstr ""
+
+#: wpheka-web-server-information.php:258
 msgid "You do not have permission to change these settings."
 msgstr ""
 
-#: wpheka-web-server-information.php:260
-msgid "That link has expired. Please try again."
-msgstr ""
-
 #. translators: 1. URL link.
-#: wpheka-web-server-information.php:342
+#: wpheka-web-server-information.php:335
 #, php-format
 msgid "Web Server Information requires %s extension to be enabled."
 msgstr ""
 
-#: wpheka-web-server-information.php:469
+#: wpheka-web-server-information.php:468
 msgid "Information Page"
 msgstr ""

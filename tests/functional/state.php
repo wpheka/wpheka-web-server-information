@@ -65,4 +65,9 @@ if ( 'setup' === $cmd ) {
 } elseif ( 'clear-location' === $cmd ) {
 	delete_transient( 'wpheka_web_server_location' );
 	echo '"ok"';
+} elseif ( 'set-transient' === $cmd ) {
+	set_transient( $args[1], $args[2], WEEK_IN_SECONDS );
+	echo '"ok"';
+} elseif ( 'get-transient' === $cmd ) {
+	echo wp_json_encode( get_transient( $args[1] ) );
 }

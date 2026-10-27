@@ -6,7 +6,7 @@
  * @author      WPHEKA
  * @link        https://www.wpheka.com
  * @since       1.0
- * @version     1.0
+ * @version     1.9
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -14,73 +14,130 @@ defined( 'ABSPATH' ) || exit;
 if ( ! class_exists( 'WPHEKA_Info_Admin_Phpinfo', false ) ) :
 
 	/**
-	 * WPHEKA_Info_Admin_Phpinfo Class.
+	 * The PHP tab's data: phpinfo() read into groups of rows, one group per module.
 	 */
 	class WPHEKA_Info_Admin_Phpinfo {
 
 		/**
-		 * WPHEKA_Info_Admin_Phpinfo Constructor.
+		 * The phpinfo() output as groups of key/value rows.
+		 *
+		 * Only the general, configuration and module sections are asked for. The
+		 * Environment and PHP Variables sections are left out (owner decision Q7,
+		 * 1.9.0): they hold the request's headers and cookies, which then end up in
+		 * every screenshot of this page shared in a support forum. For the same
+		 * reason the web server's own copies of them are skipped too: Apache's
+		 * "Apache Environment" and "HTTP Headers Information" module tables, where
+		 * hosts also keep environment variables such as database passwords.
+		 *
+		 * @since 1.9
+		 * @return array[] Each { id, title, rows }; rows are kit key/value rows.
 		 */
-		public function __construct() {
+		public function groups() {
 			ob_start();
-			phpinfo();
-			$phpinfo = ob_get_contents();
-			ob_end_clean();
+			phpinfo( INFO_GENERAL | INFO_CONFIGURATION | INFO_MODULES ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_phpinfo -- the purpose of this screen, for users who manage the site.
+			$phpinfo = (string) ob_get_clean();
 
 			// Use DOMDocument to parse phpinfo().
-			libxml_use_internal_errors( true );
-			$html = new DOMDocument( '1.0', 'UTF-8' );
-			$html->loadHTML( $phpinfo );
-
-			// Style process.
-			$tables = $html->getElementsByTagName( 'table' );
-			foreach ( $tables as $table ) {
-				$table->setAttribute( 'class', 'widefat' );
-			}
+			$previous = libxml_use_internal_errors( true );
+			$html     = new DOMDocument( '1.0', 'UTF-8' );
+			// loadHTML() reads ISO-8859-1 unless told otherwise; phpinfo() writes UTF-8.
+			$html->loadHTML( '<?xml encoding="UTF-8">' . $phpinfo );
+			libxml_clear_errors();
+			libxml_use_internal_errors( $previous );
 
 			$this->remove_cookies( $html );
 
-			// We only need the <body>.
-			$xpath = new DOMXPath( $html );
-			$body  = $xpath->query( '/html/body' );
+			$groups = array();
+			$group  = null;
+			$xpath  = new DOMXPath( $html );
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM properties.
+			foreach ( $xpath->query( '//h1|//h2|//table' ) as $node ) {
+				$name = strtolower( $node->nodeName );
+				$text = trim( preg_replace( '/\s+/', ' ', $node->textContent ) );
 
-			// Save HTML fragment.
-			libxml_use_internal_errors( false );
-			$phpinfo_html = $html->saveXml( $body->item( 0 ) );
+				if ( 'h1' === $name ) {
+					// The first heading is "PHP Version x.y.z": the general facts follow it.
+					if ( preg_match( '/PHP Version\s+(\S+)/i', $text, $m ) ) {
+						$groups[] = array(
+							'title' => __( 'General', 'wpheka-web-server-information' ),
+							'rows'  => array(
+								array(
+									'label' => __( 'PHP version', 'wpheka-web-server-information' ),
+									'value' => $m[1],
+								),
+							),
+						);
+						$group    = count( $groups ) - 1;
+					}
+					continue;
+				}
+				if ( 'h2' === $name ) {
+					if ( in_array( strtolower( $text ), array( 'apache environment', 'http headers information' ), true ) ) {
+						$group = null;
+						continue;
+					}
+					$groups[] = array(
+						'title' => $text,
+						'rows'  => array(),
+					);
+					$group    = count( $groups ) - 1;
+					continue;
+				}
+				if ( null === $group ) {
+					continue;
+				}
+				foreach ( $node->getElementsByTagName( 'tr' ) as $row ) {
+					$cells = array();
+					foreach ( $row->getElementsByTagName( 'td' ) as $cell ) {
+						$cells[] = trim( preg_replace( '/\s+/', ' ', $cell->textContent ) );
+					}
+					// Header rows use <th>; a one-cell row is a caption, not a value.
+					if ( count( $cells ) < 2 || '' === $cells[0] ) {
+						continue;
+					}
+					$item = array(
+						'label' => $cells[0],
+						'value' => $cells[1],
+					);
+					// Directive, local value, master value: say so when they differ.
+					if ( isset( $cells[2] ) && $cells[2] !== $cells[1] ) {
+						/* translators: %s: the value set in php.ini. */
+						$item['note'] = sprintf( __( 'Default: %s', 'wpheka-web-server-information' ), $cells[2] );
+					}
+					$groups[ $group ]['rows'][] = $item;
+				}
+			}
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-			/*
-			 * Filtered, not escaped. This is the markup phpinfo() produced, so
-			 * esc_html() would print the table as literal text and defeat the
-			 * page. It is not trusted either: phpinfo() embeds $_SERVER values
-			 * and request headers, which are attacker-influenced. So it is run
-			 * through kses, which keeps the tables and strips script vectors.
-			 *
-			 * `data:` is added to the allowed protocols, and wp_kses_post() is
-			 * therefore not usable here. phpinfo() ships the PHP and Zend logos
-			 * as base64 `data:image/png` URIs, and `data` is not in
-			 * wp_allowed_protocols(), so wp_kses_post() silently drops the src
-			 * and the logos disappear. That is exactly what happened when this
-			 * output was first filtered.
-			 *
-			 * Allowing `data:` here is narrow: the only markup reaching this
-			 * line is what phpinfo() generated a few statements above, and
-			 * scripts are still stripped -- verified, not assumed.
-			 */
-			echo wp_kses(
-				$phpinfo_html,
-				wp_kses_allowed_html( 'post' ),
-				array_merge( wp_allowed_protocols(), array( 'data' ) )
-			);
+			$out = array();
+			$ids = array();
+			foreach ( $groups as $g ) {
+				if ( ! $g['rows'] ) {
+					continue;
+				}
+				$id = 'php-' . sanitize_title( $g['title'] );
+				while ( isset( $ids[ $id ] ) ) {
+					$id .= '-2';
+				}
+				$ids[ $id ] = true;
+				$out[]      = array(
+					'id'    => $id,
+					'title' => $g['title'],
+					'rows'  => $g['rows'],
+				);
+			}
+
+			return $out;
 		}
 
 		/**
 		 * Take the viewer's cookies out of the phpinfo() output.
 		 *
-		 * The phpinfo() output holds the request's cookies, the WordPress login cookie
-		 * included, in the Environment, PHP Variables and HTTP headers tables.
-		 * A screenshot or a copy of this page posted in a support forum would
-		 * carry them. The rows that hold cookies are removed, and any cookie
-		 * value still found elsewhere on the page is replaced.
+		 * Module sections can still hold request headers (Apache's environment and
+		 * header tables), the WordPress login cookie included. A screenshot or a copy
+		 * of this page posted in a support forum would carry them. The rows that hold
+		 * cookies are removed, and any cookie value still found elsewhere on the page
+		 * is replaced.
 		 *
 		 * @since 1.9
 		 * @param DOMDocument $html Parsed phpinfo() output.

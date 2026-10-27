@@ -2,7 +2,8 @@
 /**
  * security.php [network]
  * PHP-level checks for the security fixes (laptop queue 2026-10-23, item 4): one
- * capability for the page, the save and the admin footer; unknown tabs; and, with
+ * capability for the page, the save and the admin footer; unknown tabs; Refresh
+ * (1.9.0); the review link; and, with
  * "network", that a network-wide setting needs a network admin. Prints PASS| and
  * FAIL| lines for run.sh and a last "ran to the end" line, so a fatal shows as a FAIL.
  *
@@ -15,9 +16,13 @@ $check = function ( $name, $ok, $detail = "" ) {
 	echo ( $ok ? 'PASS' : 'FAIL' ) . '|' . $name . ( $ok ? '' : ' -- ' . $detail ) . "\n";
 };
 
+// WP-CLI is not wp-admin, so the plugin did not load its admin classes.
+require_once WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/wpheka-ui/load.php';
+require_once WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-wpheka-web-server-info-page.php';
 if ( ! class_exists( 'WPHEKA_Web_Server_Info_Admin', false ) ) {
 	require_once WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-wpheka-web-server-info-admin.php';
 }
+require_once WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-wpheka-info-admin-dbinfo.php';
 
 // wp_die() ends the request; here it throws so a check can see it.
 add_filter(
@@ -98,19 +103,42 @@ wp_set_current_user( (int) $ids['admin'] );
 require_once ABSPATH . 'wp-admin/includes/user.php';
 wp_delete_user( $editor );
 
-// A tab added through the filter, with no class file of its own.
-$fatal = '';
+// An unknown or crafted tab shows the Overview (1.9.0 dropped the tabs filter).
+$out = '';
 try {
+	$_GET['tab'] = '../../../wp-config';
 	ob_start();
-	$admin->tab_init( 'custom' );
-	$admin->tab_init( '../../../wp-config' );
-	$admin->tab_init( '' );
+	$admin->wpheka_web_server_info_page_callback();
+	$out = ob_get_clean();
 } catch ( Throwable $e ) {
-	$fatal = $e->getMessage();
-} finally {
 	ob_end_clean();
+	$out = 'THROWN ' . $e->getMessage();
+} finally {
+	unset( $_GET['tab'] );
 }
-$check( 'tabs: a tab with no class file is skipped, not a fatal error', '' === $fatal, $fatal );
-$check( 'tabs: a built-in tab still loads', $admin->load_tab_class( 'dbinfo' ) && ! $admin->load_tab_class( 'custom' ) );
+$check( 'tabs: an unknown tab shows the Overview, not an error', false !== strpos( $out, 'id="server"' ) && false === strpos( $out, 'THROWN' ), substr( $out, 0, 200 ) );
+
+// Refresh: only for users who can open the page, and it clears every cached fact.
+set_transient( 'wpheka_web_server_db_max_connection', 'zz-cached', WEEK_IN_SECONDS );
+wp_set_current_user( (int) $ids['sub'] );
+$_REQUEST['_wpnonce'] = wp_create_nonce( WPHEKA_Web_Server_Info_Page::REFRESH_ACTION );
+$check( 'refresh: a subscriber with a valid nonce is refused', $dies( array( 'WPHEKA_Web_Server_Info_Page', 'handle_refresh' ) ) && 'zz-cached' === get_transient( 'wpheka_web_server_db_max_connection' ) );
+unset( $_REQUEST['_wpnonce'] );
+wp_set_current_user( (int) $ids['admin'] );
+$check( 'refresh: a request without a nonce is refused', $dies( array( 'WPHEKA_Web_Server_Info_Page', 'handle_refresh' ) ) && 'zz-cached' === get_transient( 'wpheka_web_server_db_max_connection' ) );
+foreach ( WPHEKA_Info_Admin_Dbinfo::transients() as $t ) {
+	set_transient( $t, 'zz-cached', WEEK_IN_SECONDS );
+}
+WPHEKA_Info_Admin_Dbinfo::refresh();
+$left = array_filter(
+	WPHEKA_Info_Admin_Dbinfo::transients(),
+	function ( $t ) {
+		return false !== get_transient( $t );
+	}
+);
+$check( 'refresh: every cached server and database fact is cleared', ! $left, implode( ', ', $left ) );
+
+// One review link everywhere (owner decision Q14).
+$check( 'review link: the reviews form, without rate or filter', 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews/#new-post' === wpheka_web_server_info_review_url() );
 
 echo "PASS|security.php: ran to the end\n";

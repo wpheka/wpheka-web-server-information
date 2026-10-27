@@ -1,16 +1,16 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName -- the main class lives in the main plugin file.
 /**
  * Plugin Name: Web Server Information
  * Plugin URI: https://www.wpheka.com/product/web-server-information/
  * Description: The <code><strong>Web Server Information</strong></code> plugin allows you to check full information about your web server PHP/Mysql configurations including libraries, system type and OS version.
- * Version: 1.8.3
+ * Version: 1.9.0
  * Author: WPHEKA
  * Author URI: https://www.wpheka.com
  * Text Domain: wpheka-web-server-information
  * Domain Path: /languages/
  * Requires at least: 5.1
  * Requires PHP: 8.1
- * Tested up to: 7.1.2
+ * Tested up to: 7.1.3
  * License: GPLv3 or later
  *
  * @package   WPHEKA_Web_Server_Info
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'WPHEKA_WEB_SERVER_INFO_VERSION', '1.8.3' );
+define( 'WPHEKA_WEB_SERVER_INFO_VERSION', '1.9.0' );
 define( 'WPHEKA_WEB_SERVER_INFO_MAIN_FILE', __FILE__ );
 define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
@@ -237,53 +237,47 @@ function wpheka_web_server_info_can_save() {
 	return true;
 }
 
-add_action( 'admin_init', 'wpheka_web_server_info_save_settings' );
+/**
+ * The review form on wordpress.org: one link for the dashboard prompt and the page.
+ *
+ * @since 1.9
+ * @return string
+ */
+function wpheka_web_server_info_review_url() {
+	return 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews/#new-post';
+}
 
 /**
- * Save the settings form posted from the Overview tab.
+ * Save the settings form posted from the Overview tab (admin-post, wpheka_wsi_save).
  *
  * @since 1.8
  * @return void
  */
 function wpheka_web_server_info_save_settings() {
-	if ( ! isset( $_POST['wpheka_wsi_nonce'] ) ) {
-		return;
-	}
-
 	if ( ! wpheka_web_server_info_can_save() ) {
-		wp_die( esc_html__( 'You do not have permission to change these settings.', 'wpheka-web-server-information' ) );
+		wp_die( esc_html__( 'You do not have permission to change these settings.', 'wpheka-web-server-information' ), '', array( 'response' => 403 ) );
 	}
 
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpheka_wsi_nonce'] ) ), 'wpheka_wsi_save' ) ) {
-		wp_die( esc_html__( 'That link has expired. Please try again.', 'wpheka-web-server-information' ) );
-	}
+	check_admin_referer( 'wpheka_wsi_save' );
+
+	$back = array(
+		'page' => 'wpheka-information',
+		'tab'  => 'webserver',
+	);
 
 	if ( ! wpheka_web_server_info_framework_ready() ) {
-		return;
+		wp_safe_redirect( add_query_arg( $back + array( 'w-error' => 'framework' ), admin_url( 'admin.php' ) ) );
+		exit;
 	}
 
-	/*
-	 * An unchecked checkbox posts nothing at all, so its absence is the value.
-	 * Reading it with isset() and letting the schema sanitise the result keeps
-	 * the cast in one place rather than inline here.
-	 */
-	$clean = wpheka_web_server_info_schema()->sanitize(
-		array( 'footer_info' => isset( $_POST['wpheka_wsi_footer_info'] ) ? '1' : '' )
-	);
+	// The kit's switch posts "yes" when on and "no" when off; the schema casts the result.
+	$on    = isset( $_POST['wpheka_wsi_footer_info'] ) && 'yes' === sanitize_key( wp_unslash( $_POST['wpheka_wsi_footer_info'] ) );
+	$clean = wpheka_web_server_info_schema()->sanitize( array( 'footer_info' => $on ? '1' : '' ) );
 
 	wpheka_web_server_info_options()->update( $clean );
 
 	// Redirect so a refresh does not repost the form.
-	wp_safe_redirect(
-		add_query_arg(
-			array(
-				'page'           => 'wpheka-information',
-				'tab'            => 'webserver',
-				'wpheka-updated' => '1',
-			),
-			admin_url( 'admin.php' )
-		)
-	);
+	wp_safe_redirect( add_query_arg( $back + array( 'w-saved' => '1' ), admin_url( 'admin.php' ) ) );
 	exit;
 }
 
@@ -334,15 +328,21 @@ function wpheka_web_server_info_new_site( $site ) {
  * DOMDocument fallback notice.
  *
  * @since 1.0
- * @return string
+ * @return void
  */
 function wpheka_web_server_missing_domdocument_notice() {
 	/* translators: 1. URL link. */
-	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'Web Server Information requires %s extension to be enabled.', 'wpheka-web-server-information' ), '<a href="http://php.net/manual/en/class.domdocument.php" target="_blank">DOMDocument</a>' ) . '</strong></p></div>';
+	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'Web Server Information requires %s extension to be enabled.', 'wpheka-web-server-information' ), '<a href="https://www.php.net/manual/en/class.domdocument.php" target="_blank" rel="noopener">DOMDocument</a>' ) . '</strong></p></div>';
 }
 
 add_action( 'plugins_loaded', 'wpheka_web_server_info_init' );
 
+/**
+ * Load the plugin once WordPress and the other plugins are loaded.
+ *
+ * @since 1.0
+ * @return void
+ */
 function wpheka_web_server_info_init() {
 	load_plugin_textdomain( 'wpheka-web-server-information', false, plugin_basename( __DIR__ ) . '/languages' );
 
@@ -353,10 +353,15 @@ function wpheka_web_server_info_init() {
 
 	if ( ! class_exists( 'WPHEKA_Web_Server_Info' ) ) :
 
+		/**
+		 * The plugin's main class.
+		 */
 		class WPHEKA_Web_Server_Info {
 
 			/**
-			 * @var Singleton The reference the *Singleton* instance of this class
+			 * The single instance of this class.
+			 *
+			 * @var WPHEKA_Web_Server_Info|null
 			 */
 			private static $instance;
 
@@ -406,7 +411,10 @@ function wpheka_web_server_info_init() {
 			 */
 			public function init() {
 				if ( is_admin() ) {
+					require_once __DIR__ . '/includes/wpheka-ui/load.php';
+					require_once __DIR__ . '/includes/class-wpheka-web-server-info-page.php';
 					require_once __DIR__ . '/includes/class-wpheka-web-server-info-admin.php';
+					WPHEKA_Web_Server_Info_Page::init();
 				}
 				add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 			}
@@ -452,6 +460,8 @@ function wpheka_web_server_info_init() {
 			 *
 			 * @since 1.0
 			 * @version 1.0
+			 * @param array $links Links on the Plugins screen.
+			 * @return array
 			 */
 			public function plugin_action_links( $links ) {
 				$plugin_links = array(
