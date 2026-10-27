@@ -167,9 +167,9 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 			$server_os = get_transient( 'wpheka_web_server_os' );
 
 			if ( $server_os === false ) {
-				$os_detail = php_uname();
+				$os_detail    = php_uname();
 				$just_os_name = explode( ' ', trim( $os_detail ) );
-				$server_os = $just_os_name[0];
+				$server_os    = $just_os_name[0];
 				set_transient( 'wpheka_web_server_os', $server_os, WEEK_IN_SECONDS );
 			}
 
@@ -180,7 +180,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 		 * Check server ip.
 		 */
 		public function check_server_ip() {
-			 return trim( gethostbyname( gethostname() ) );
+			return trim( gethostbyname( gethostname() ) );
 		}
 
 		/**
@@ -254,7 +254,6 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Webserver', false ) ) :
 				return false; // $ip is NOT a valid IP address.
 			}
 		}
-
 	}
 
 endif;

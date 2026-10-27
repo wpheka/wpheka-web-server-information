@@ -130,10 +130,10 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 			if ( $db_software === false ) {
 				global $wpdb;
 				$db_software_query = $wpdb->get_row( "SHOW VARIABLES LIKE 'version_comment'" );
-				$db_software_dump = $db_software_query->Value;
+				$db_software_dump  = $db_software_query->Value;
 				if ( ! empty( $db_software_dump ) ) {
 					$db_soft_array = explode( ' ', trim( $db_software_dump ) );
-					$db_software = $db_soft_array[0];
+					$db_software   = $db_soft_array[0];
 					set_transient( 'wpheka_web_server_db_software', $db_software, WEEK_IN_SECONDS );
 				} else {
 					$db_software = __( 'N/A', 'wpheka-web-server-information' );
@@ -176,7 +176,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 			if ( $db_max_connection === false ) {
 				global $wpdb;
 				$connection_max_query = $wpdb->get_row( "SHOW VARIABLES LIKE 'max_connections'" );
-				$db_max_connection = $connection_max_query->Value;
+				$db_max_connection    = $connection_max_query->Value;
 				if ( empty( $db_max_connection ) ) {
 					$db_max_connection = __( 'N/A', 'wpheka-web-server-information' );
 				} else {
@@ -198,7 +198,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 
 			if ( $db_max_packet_size === false ) {
 				global $wpdb;
-				$packet_max_query = $wpdb->get_row( "SHOW VARIABLES LIKE 'max_allowed_packet'" );
+				$packet_max_query   = $wpdb->get_row( "SHOW VARIABLES LIKE 'max_allowed_packet'" );
 				$db_max_packet_size = $packet_max_query->Value;
 				if ( empty( $db_max_packet_size ) ) {
 					$db_max_packet_size = __( 'N/A', 'wpheka-web-server-information' );
@@ -246,7 +246,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 			if ( $db_disk_usage === false ) {
 				global $wpdb;
 				$db_disk_usage = 0;
-				$tablesstatus = $wpdb->get_results( 'SHOW TABLE STATUS' );
+				$tablesstatus  = $wpdb->get_results( 'SHOW TABLE STATUS' );
 				foreach ( $tablesstatus as $tablestatus ) {
 					$db_disk_usage += $tablestatus->Data_length;
 				}
@@ -272,7 +272,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 			if ( $db_index_disk_usage === false ) {
 				global $wpdb;
 				$db_index_disk_usage = 0;
-				$tablesstatus = $wpdb->get_results( 'SHOW TABLE STATUS' );
+				$tablesstatus        = $wpdb->get_results( 'SHOW TABLE STATUS' );
 				foreach ( $tablesstatus as $tablestatus ) {
 					$db_index_disk_usage += $tablestatus->Index_length;
 				}
@@ -286,7 +286,6 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Dbinfo', false ) ) :
 
 			return $db_index_disk_usage;
 		}
-
 	}
 
 endif;

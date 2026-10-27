@@ -9,389 +9,378 @@
  * @version     1.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-if (! class_exists('WPHEKA_Web_Server_Info_Admin', false)) :
+if ( ! class_exists( 'WPHEKA_Web_Server_Info_Admin', false ) ) :
 
-    /**
-     * WPHEKA_Web_Server_Info_Admin Class.
-     */
-    class WPHEKA_Web_Server_Info_Admin
-    {
+	/**
+	 * WPHEKA_Web_Server_Info_Admin Class.
+	 */
+	class WPHEKA_Web_Server_Info_Admin {
 
-        /**
-         * Setting tabs.
-         *
-         * @var array
-         */
-        private $tabs = array();
 
-        /**
-         * WPHEKA_Web_Server_Info_Admin Constructor.
-         */
-        public function __construct()
-        {
-            $this->tabs = apply_filters(
-                'wpheka_web_server_info_tabs_array',
-                array(
-                    'webserver' => __('Overview', 'wpheka-web-server-information'),
-                    'phpinfo'   => __('PHP Information', 'wpheka-web-server-information'),
-                    'dbinfo'    => __('Database Information', 'wpheka-web-server-information'),
-                )
-            );
+		/**
+		 * Setting tabs.
+		 *
+		 * @var array
+		 */
+		private $tabs = array();
 
-            // Admin Menu.
-            add_action('admin_menu', array( &$this, 'wpheka_web_server_info_menu' ));
+		/**
+		 * WPHEKA_Web_Server_Info_Admin Constructor.
+		 */
+		public function __construct() {
+			$this->tabs = apply_filters(
+				'wpheka_web_server_info_tabs_array',
+				array(
+					'webserver' => __( 'Overview', 'wpheka-web-server-information' ),
+					'phpinfo'   => __( 'PHP Information', 'wpheka-web-server-information' ),
+					'dbinfo'    => __( 'Database Information', 'wpheka-web-server-information' ),
+				)
+			);
 
-            // Review prompt.
-            add_action('admin_notices', array( $this, 'wpheka_web_server_info_review_prompt' ));
-            add_action('admin_init', array( $this, 'wpheka_web_server_info_maybe_hide_review_prompt' ));
-            add_action('wp_ajax_wpheka_wsi_snooze_review', array( $this, 'wpheka_web_server_info_snooze_review_prompt' ));
+			// Admin Menu.
+			add_action( 'admin_menu', array( &$this, 'wpheka_web_server_info_menu' ) );
 
-            // admin script and style.
-            add_action('admin_enqueue_scripts', array( &$this, 'wpheka_web_server_info_admin_scripts_styles' ));
+			// Review prompt.
+			add_action( 'admin_notices', array( $this, 'wpheka_web_server_info_review_prompt' ) );
+			add_action( 'admin_init', array( $this, 'wpheka_web_server_info_maybe_hide_review_prompt' ) );
+			add_action( 'wp_ajax_wpheka_wsi_snooze_review', array( $this, 'wpheka_web_server_info_snooze_review_prompt' ) );
 
-            // Tabs.
-            add_action('info_page_webserver_tab_init', array( &$this, 'tab_init' ), 10, 1);
-            add_action('info_page_phpinfo_tab_init', array( &$this, 'tab_init' ), 10, 1);
-            add_action('info_page_dbinfo_tab_init', array( &$this, 'tab_init' ), 10, 1);
+			// admin script and style.
+			add_action( 'admin_enqueue_scripts', array( &$this, 'wpheka_web_server_info_admin_scripts_styles' ) );
 
-            // Display php/db info in footer, if the setting allows it. Checked
-            // here rather than inside the callback so that when it is off, the
-            // filter is never attached and the version query never runs.
-            if (wpheka_web_server_info_footer_enabled()) {
-                add_filter('update_footer', array( $this, 'version_info_in_footer' ), 11);
-            }
-        }
+			// Tabs.
+			add_action( 'info_page_webserver_tab_init', array( &$this, 'tab_init' ), 10, 1 );
+			add_action( 'info_page_phpinfo_tab_init', array( &$this, 'tab_init' ), 10, 1 );
+			add_action( 'info_page_dbinfo_tab_init', array( &$this, 'tab_init' ), 10, 1 );
 
-        /**
-         * Admin Scripts
-         */
-        public function wpheka_web_server_info_admin_scripts_styles()
-        {
-            $screen    = get_current_screen();
-            $screen_id = $screen ? $screen->id : '';
-            $suffix    = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
+			// Display php/db info in footer, if the setting allows it. Checked
+			// here rather than inside the callback so that when it is off, the
+			// filter is never attached and the version query never runs.
+			if ( wpheka_web_server_info_footer_enabled() ) {
+				add_filter( 'update_footer', array( $this, 'version_info_in_footer' ), 11 );
+			}
+		}
 
-            if ('wpheka_page_wpheka-information' == $screen_id) {
-                wp_enqueue_style('wpheka_web_server_info_admin_css', WPHEKA_WEB_SERVER_INFO_PLUGIN_URL . '/assets/css/admin.css', array(), WPHEKA_WEB_SERVER_INFO_VERSION);
-            }
-        }
+		/**
+		 * Admin Scripts
+		 */
+		public function wpheka_web_server_info_admin_scripts_styles() {
+			$screen    = get_current_screen();
+			$screen_id = $screen ? $screen->id : '';
+			$suffix    = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-        /**
-         * Ask for a review in an admin notice on the dashboard.
-         *
-         * The approach follows Elementor's rate-us notice -- dashboard only,
-         * dismissed per user rather than per site, and gated on a usage count
-         * rather than elapsed time. Written here rather than taken from
-         * Elementor, whose licence differs from this project's (ADR-008).
-         *
-         * **Links to the review form with five stars pre-selected**
-         * (`reviews?rate=5#new-post`, the URL form WooCommerce uses). See the
-         * comment above `$reviews` for why Plugin Check does not flag it.
-         *
-         * The dismissal is a plain option rather than the framework settings
-         * row, deliberately. It is one boolean that must read the same whether
-         * or not a framework booted; routing it through Options would make the
-         * answer depend on the boot guard, and a prompt that reappears after
-         * being dismissed is worse than one stored simply.
-         *
-         * @since 1.8
-         * @return void
-         */
-        public function wpheka_web_server_info_review_prompt()
-        {
-            if (! current_user_can('manage_options')) {
-                return;
-            }
+			if ( 'wpheka_page_wpheka-information' == $screen_id ) {
+				wp_enqueue_style( 'wpheka_web_server_info_admin_css', WPHEKA_WEB_SERVER_INFO_PLUGIN_URL . '/assets/css/admin.css', array(), WPHEKA_WEB_SERVER_INFO_VERSION );
+			}
+		}
 
-            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+		/**
+		 * Ask for a review in an admin notice on the dashboard.
+		 *
+		 * The approach follows Elementor's rate-us notice -- dashboard only,
+		 * dismissed per user rather than per site, and gated on a usage count
+		 * rather than elapsed time. Written here rather than taken from
+		 * Elementor, whose licence differs from this project's (ADR-008).
+		 *
+		 * **Links to the review form with five stars pre-selected**
+		 * (`reviews?rate=5#new-post`, the URL form WooCommerce uses). See the
+		 * comment above `$reviews` for why Plugin Check does not flag it.
+		 *
+		 * The dismissal is a plain option rather than the framework settings
+		 * row, deliberately. It is one boolean that must read the same whether
+		 * or not a framework booted; routing it through Options would make the
+		 * answer depend on the boot guard, and a prompt that reappears after
+		 * being dismissed is worse than one stored simply.
+		 *
+		 * @since 1.8
+		 * @return void
+		 */
+		public function wpheka_web_server_info_review_prompt() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
 
-            if (! $screen || 'dashboard' !== $screen->id) {
-                return;
-            }
+			$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
-            // Per user, so one administrator cannot answer for the rest. The old
-            // site-wide option is still honoured so nobody is asked twice.
-            if (get_option('wpheka_web_server_info_review_dismissed')
-                || get_user_meta(get_current_user_id(), 'wpheka_wsi_review_dismissed', true)) {
-                return;
-            }
+			if ( ! $screen || 'dashboard' !== $screen->id ) {
+				return;
+			}
 
-            // Closed with its X: asked again in 14 days, for this user only.
-            $snoozed_until = (int) get_user_meta(get_current_user_id(), 'wpheka_wsi_review_snoozed_until', true);
-            if ($snoozed_until > time()) {
-                return;
-            }
+			// Per user, so one administrator cannot answer for the rest. The old
+			// site-wide option is still honoured so nobody is asked twice.
+			if ( get_option( 'wpheka_web_server_info_review_dismissed' )
+				|| get_user_meta( get_current_user_id(), 'wpheka_wsi_review_dismissed', true ) ) {
+				return;
+			}
 
-            /*
-             * Three visits to this plugin's own screen. It reports server
-             * configuration and has no success event to count, so repeated
-             * deliberate visits are the closest honest signal that someone finds
-             * it useful. Weaker than counting a job done, and still better than
-             * a timer, which measures nothing.
-             */
-            if (3 > (int) get_option('wpheka_web_server_info_view_count', 0)) {
-                return;
-            }
+			// Closed with its X: asked again in 14 days, for this user only.
+			$snoozed_until = (int) get_user_meta( get_current_user_id(), 'wpheka_wsi_review_snoozed_until', true );
+			if ( $snoozed_until > time() ) {
+				return;
+			}
 
-            // rate=5 pre-selects the rating on the review form, in the URL form
-            // WooCommerce uses. Deliberate, and *not* a Plugin Check finding: its
-            // five_star_reviews_detected check matches `reviews/?filter=5` only, so
-            // neither the parameter nor the missing trailing slash here match it.
-            // The `reviews/?filter=5#new-post` this plugin family used before did
-            // match, which is why it was reported -- and filter=5 only filters the
-            // existing review list, so it was flagged without pre-filling anything.
-            // Plugin Check staying quiet is not the same as wordpress.org's review
-            // team agreeing; that risk is accepted separately.
-            $reviews = 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews?rate=5#new-post';
-            $hide    = wp_nonce_url(
-                add_query_arg('wpheka_wsi_hide_review', '1', admin_url('index.php')),
-                'wpheka_wsi_hide_review'
-            );
-            ?>
-            <div id="wpheka-wsi-review-notice" class="notice notice-info is-dismissible" data-nonce="<?php echo esc_attr(wp_create_nonce('wpheka_wsi_snooze_review')); ?>">
-                <p>
-                <?php
-                printf(
-                /* translators: 1: plugin name, 2: five-star rating link, 3: opening link tag to dismiss, 4: closing link tag */
-                esc_html__('If %1$s is useful to you, please leave us a %2$s rating on WordPress.org. %3$sDon\'t ask again%4$s.', 'wpheka-web-server-information'),
-                '<strong>' . esc_html__('Web Server Information', 'wpheka-web-server-information') . '</strong>',
-                '<a href="' . esc_url($reviews) . '" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__('five star', 'wpheka-web-server-information') . '">&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
-                '<a href="' . esc_url($hide) . '">',
-                '</a>'
-            );
-                ?>
-                </p>
-            </div>
-            <script>
-            // WordPress hides an is-dismissible notice on its X but remembers
-            // nothing, so without this the prompt was back on the next load.
-            jQuery(function ($) {
-                $(document).on('click', '#wpheka-wsi-review-notice .notice-dismiss', function () {
-                    $.post(ajaxurl, { action: 'wpheka_wsi_snooze_review', _ajax_nonce: $('#wpheka-wsi-review-notice').data('nonce') });
-                });
-            });
-            </script>
-            <?php
-        }
+			/*
+			 * Three visits to this plugin's own screen. It reports server
+			 * configuration and has no success event to count, so repeated
+			 * deliberate visits are the closest honest signal that someone finds
+			 * it useful. Weaker than counting a job done, and still better than
+			 * a timer, which measures nothing.
+			 */
+			if ( 3 > (int) get_option( 'wpheka_web_server_info_view_count', 0 ) ) {
+				return;
+			}
 
-        /**
-         * Snooze the review prompt for 14 days when its X is clicked.
-         *
-         * Per user, like the permanent dismissal: closing a notice is one
-         * person's decision. "Don't ask again" still hides it for good.
-         *
-         * @since 1.8.3
-         * @return void
-         */
-        public function wpheka_web_server_info_snooze_review_prompt()
-        {
-            check_ajax_referer('wpheka_wsi_snooze_review');
+			// rate=5 pre-selects the rating on the review form, in the URL form
+			// WooCommerce uses. Deliberate, and *not* a Plugin Check finding: its
+			// five_star_reviews_detected check matches `reviews/?filter=5` only, so
+			// neither the parameter nor the missing trailing slash here match it.
+			// The `reviews/?filter=5#new-post` this plugin family used before did
+			// match, which is why it was reported -- and filter=5 only filters the
+			// existing review list, so it was flagged without pre-filling anything.
+			// Plugin Check staying quiet is not the same as wordpress.org's review
+			// team agreeing; that risk is accepted separately.
+			$reviews = 'https://wordpress.org/support/plugin/wpheka-web-server-information/reviews?rate=5#new-post';
+			$hide    = wp_nonce_url(
+				add_query_arg( 'wpheka_wsi_hide_review', '1', admin_url( 'index.php' ) ),
+				'wpheka_wsi_hide_review'
+			);
+			?>
+			<div id="wpheka-wsi-review-notice" class="notice notice-info is-dismissible" data-nonce="<?php echo esc_attr( wp_create_nonce( 'wpheka_wsi_snooze_review' ) ); ?>">
+				<p>
+				<?php
+				printf(
+				/* translators: 1: plugin name, 2: five-star rating link, 3: opening link tag to dismiss, 4: closing link tag */
+					esc_html__( 'If %1$s is useful to you, please leave us a %2$s rating on WordPress.org. %3$sDon\'t ask again%4$s.', 'wpheka-web-server-information' ),
+					'<strong>' . esc_html__( 'Web Server Information', 'wpheka-web-server-information' ) . '</strong>',
+					'<a href="' . esc_url( $reviews ) . '" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr__( 'five star', 'wpheka-web-server-information' ) . '">&#9733;&#9733;&#9733;&#9733;&#9733;</a>',
+					'<a href="' . esc_url( $hide ) . '">',
+					'</a>'
+				);
+				?>
+				</p>
+			</div>
+			<script>
+			// WordPress hides an is-dismissible notice on its X but remembers
+			// nothing, so without this the prompt was back on the next load.
+			jQuery(function ($) {
+				$(document).on('click', '#wpheka-wsi-review-notice .notice-dismiss', function () {
+					$.post(ajaxurl, { action: 'wpheka_wsi_snooze_review', _ajax_nonce: $('#wpheka-wsi-review-notice').data('nonce') });
+				});
+			});
+			</script>
+			<?php
+		}
 
-            if (! current_user_can('manage_options')) {
-                wp_send_json_error(null, 403);
-            }
+		/**
+		 * Snooze the review prompt for 14 days when its X is clicked.
+		 *
+		 * Per user, like the permanent dismissal: closing a notice is one
+		 * person's decision. "Don't ask again" still hides it for good.
+		 *
+		 * @since 1.8.3
+		 * @return void
+		 */
+		public function wpheka_web_server_info_snooze_review_prompt() {
+			check_ajax_referer( 'wpheka_wsi_snooze_review' );
 
-            update_user_meta(get_current_user_id(), 'wpheka_wsi_review_snoozed_until', time() + 14 * DAY_IN_SECONDS);
-            wp_send_json_success();
-        }
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_send_json_error( null, 403 );
+			}
 
-        /**
-         * Count deliberate visits to this plugin's screen.
-         *
-         * Stops writing once the review prompt's threshold is met.
-         *
-         * @since 1.8
-         * @return void
-         */
-        public function wpheka_web_server_info_count_view()
-        {
-            $count = (int) get_option('wpheka_web_server_info_view_count', 0);
+			update_user_meta( get_current_user_id(), 'wpheka_wsi_review_snoozed_until', time() + 14 * DAY_IN_SECONDS );
+			wp_send_json_success();
+		}
 
-            if ($count >= 3) {
-                return;
-            }
+		/**
+		 * Count deliberate visits to this plugin's screen.
+		 *
+		 * Stops writing once the review prompt's threshold is met.
+		 *
+		 * @since 1.8
+		 * @return void
+		 */
+		public function wpheka_web_server_info_count_view() {
+			$count = (int) get_option( 'wpheka_web_server_info_view_count', 0 );
 
-            update_option('wpheka_web_server_info_view_count', $count + 1, false);
-        }
+			if ( $count >= 3 ) {
+				return;
+			}
 
-        /**
-         * Stop asking, when the user asks us to.
-         *
-         * @since 1.8
-         * @return void
-         */
-        public function wpheka_web_server_info_maybe_hide_review_prompt()
-        {
-            if (! isset($_GET['wpheka_wsi_hide_review'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked immediately below.
-                return;
-            }
+			update_option( 'wpheka_web_server_info_view_count', $count + 1, false );
+		}
 
-            if (! current_user_can('manage_options')) {
-                return;
-            }
+		/**
+		 * Stop asking, when the user asks us to.
+		 *
+		 * @since 1.8
+		 * @return void
+		 */
+		public function wpheka_web_server_info_maybe_hide_review_prompt() {
+			if ( ! isset( $_GET['wpheka_wsi_hide_review'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce checked immediately below.
+				return;
+			}
 
-            check_admin_referer('wpheka_wsi_hide_review');
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
 
-            update_user_meta(get_current_user_id(), 'wpheka_wsi_review_dismissed', 1);
+			check_admin_referer( 'wpheka_wsi_hide_review' );
 
-            wp_safe_redirect(admin_url('index.php'));
-            exit;
-        }
+			update_user_meta( get_current_user_id(), 'wpheka_wsi_review_dismissed', 1 );
 
-        public function wpheka_web_server_info_menu()
-        {
-            /*
-             * The shared WPHEKA parent is coordinated by the framework now
-             * (ADR-028), which replaces the fifteen lines this method used to
-             * carry -- the same fifteen lines four sibling plugins still carry.
-             *
-             * The capability is not restated. add_page() inherits the parent's,
-             * which is the point: this method previously filtered the parent's
-             * capability and then hardcoded manage_options on its own submenu,
-             * so the two disagreed the moment anyone used the filter.
-             *
-             * The page title no longer varies by tab. It used to read $_GET, so
-             * menu registration depended on request state; the active tab is
-             * already the heading on the page itself.
-             */
-            if (!wpheka_web_server_info_framework_ready()) {
-                return;
-            }
+			wp_safe_redirect( admin_url( 'index.php' ) );
+			exit;
+		}
 
-            $menu = new \WPHEKA\Framework\V1\Admin\Menu(
-                untrailingslashit(plugins_url('/assets/images/wp-heka-menu-icon-22.svg', WPHEKA_WEB_SERVER_INFO_MAIN_FILE))
-            );
+		public function wpheka_web_server_info_menu() {
+			/*
+			 * The shared WPHEKA parent is coordinated by the framework now
+			 * (ADR-028), which replaces the fifteen lines this method used to
+			 * carry -- the same fifteen lines four sibling plugins still carry.
+			 *
+			 * The capability is not restated. add_page() inherits the parent's,
+			 * which is the point: this method previously filtered the parent's
+			 * capability and then hardcoded manage_options on its own submenu,
+			 * so the two disagreed the moment anyone used the filter.
+			 *
+			 * The page title no longer varies by tab. It used to read $_GET, so
+			 * menu registration depended on request state; the active tab is
+			 * already the heading on the page itself.
+			 */
+			if ( ! wpheka_web_server_info_framework_ready() ) {
+				return;
+			}
 
-            $menu->add_page(
-                __('Web Server Information', 'wpheka-web-server-information'),
-                __('Web Server Information', 'wpheka-web-server-information'),
-                'wpheka-information',
-                array( $this, 'wpheka_web_server_info_page_callback' )
-            );
+			$menu = new \WPHEKA\Framework\V1\Admin\Menu(
+				untrailingslashit( plugins_url( '/assets/images/wp-heka-menu-icon-22.svg', WPHEKA_WEB_SERVER_INFO_MAIN_FILE ) )
+			);
 
-            /*
-             * The "Duplicate Items Hack" that stood here is gone. WordPress
-             * still mirrors the parent as its own first submenu; the framework
-             * adapter removes it once, at PHP_INT_MAX, so every plugin sharing
-             * the parent no longer needs its own copy of the removal (ADR-028).
-             */
-        }
+			$menu->add_page(
+				__( 'Web Server Information', 'wpheka-web-server-information' ),
+				__( 'Web Server Information', 'wpheka-web-server-information' ),
+				'wpheka-information',
+				array( $this, 'wpheka_web_server_info_page_callback' )
+			);
 
-        /**
-         * Info page callback
-         */
-        public function wpheka_web_server_info_page_callback()
-        {
-            // The menu entry hides the page from other users; the page checks too,
-            // since it prints phpinfo() and database settings.
-            if (!current_user_can(wpheka_web_server_info_capability())) {
-                wp_die(esc_html__('You do not have permission to view this page.', 'wpheka-web-server-information'), 403);
-            }
+			/*
+			 * The "Duplicate Items Hack" that stood here is gone. WordPress
+			 * still mirrors the parent as its own first submenu; the framework
+			 * adapter removes it once, at PHP_INT_MAX, so every plugin sharing
+			 * the parent no longer needs its own copy of the removal (ADR-028).
+			 */
+		}
 
-            $this->wpheka_web_server_info_count_view();
+		/**
+		 * Info page callback
+		 */
+		public function wpheka_web_server_info_page_callback() {
+			// The menu entry hides the page from other users; the page checks too,
+			// since it prints phpinfo() and database settings.
+			if ( ! current_user_can( wpheka_web_server_info_capability() ) ) {
+				wp_die( esc_html__( 'You do not have permission to view this page.', 'wpheka-web-server-information' ), 403 );
+			}
 
-            // Tab navigation, not a state change: the value only selects which
-            // read-only panel renders, and it is passed through sanitize_title().
+			$this->wpheka_web_server_info_count_view();
+
+			// Tab navigation, not a state change: the value only selects which
+			// read-only panel renders, and it is passed through sanitize_title().
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- navigation only, no state change.
-            $active_tab = empty($_GET['tab']) ? 'webserver' : sanitize_title(wp_unslash($_GET['tab']));
-            ?>
-                <div class="wrap webserver-info">
-                    <h2><?php esc_html_e('WPHEKA Web Server Information', 'wpheka-web-server-information'); ?></h2>
-                    <h2 class="nav-tab-wrapper">
-                    <?php
-                    foreach ($this->tabs as $tab_slug => $tab) {
-                        $tab_url = admin_url('admin.php?page=wpheka-information&tab=' . $tab_slug);
-                        $active_tab_class = '';
-                        if ($active_tab == $tab_slug) {
-                            $active_tab_class = 'nav-tab-active';
-                        }
-                        echo '<a class="nav-tab ' . esc_attr($active_tab_class) . '" href="' . esc_url($tab_url) . '">' . esc_html($tab) . '</a>';
-                    }
-                    ?>
-                    </h2>
-                    <div class="webserver-info-wrap">
-                        <?php do_action("info_page_{$active_tab}_tab_init", $active_tab); ?>
-                    </div>
-                </div>
-            <?php
-            do_action('wpheka_web_server_info_admin_footer');
-        }
+			$active_tab = empty( $_GET['tab'] ) ? 'webserver' : sanitize_title( wp_unslash( $_GET['tab'] ) );
+			?>
+				<div class="wrap webserver-info">
+					<h2><?php esc_html_e( 'WPHEKA Web Server Information', 'wpheka-web-server-information' ); ?></h2>
+					<h2 class="nav-tab-wrapper">
+					<?php
+					foreach ( $this->tabs as $tab_slug => $tab ) {
+						$tab_url          = admin_url( 'admin.php?page=wpheka-information&tab=' . $tab_slug );
+						$active_tab_class = '';
+						if ( $active_tab == $tab_slug ) {
+							$active_tab_class = 'nav-tab-active';
+						}
+						echo '<a class="nav-tab ' . esc_attr( $active_tab_class ) . '" href="' . esc_url( $tab_url ) . '">' . esc_html( $tab ) . '</a>';
+					}
+					?>
+					</h2>
+					<div class="webserver-info-wrap">
+						<?php do_action( "info_page_{$active_tab}_tab_init", $active_tab ); ?>
+					</div>
+				</div>
+			<?php
+			do_action( 'wpheka_web_server_info_admin_footer' );
+		}
 
-        /**
-         * Init tab
-         *
-         * A tab with no class file of its own (for example one added through the
-         * wpheka_web_server_info_tabs_array filter) is skipped, not a fatal error.
-         * Such a tab renders its panel from its own info_page_{tab}_tab_init action.
-         *
-         * @param string $tab Tab slug.
-         */
-        public function tab_init($tab)
-        {
-            if (!$this->load_tab_class($tab)) {
-                return;
-            }
+		/**
+		 * Init tab
+		 *
+		 * A tab with no class file of its own (for example one added through the
+		 * wpheka_web_server_info_tabs_array filter) is skipped, not a fatal error.
+		 * Such a tab renders its panel from its own info_page_{tab}_tab_init action.
+		 *
+		 * @param string $tab Tab slug.
+		 */
+		public function tab_init( $tab ) {
+			if ( ! $this->load_tab_class( $tab ) ) {
+				return;
+			}
 
-            $tab_class_name = 'WPHEKA_Info_Admin_' . ucfirst($tab);
-            if (class_exists($tab_class_name, false)) {
-                new $tab_class_name($tab);
-            }
-        }
+			$tab_class_name = 'WPHEKA_Info_Admin_' . ucfirst( $tab );
+			if ( class_exists( $tab_class_name, false ) ) {
+				new $tab_class_name( $tab );
+			}
+		}
 
-        /**
-         * Load tab class
-         *
-         * @param string $tab_class_name Tab slug.
-         * @return bool Whether the tab's class file exists and was loaded.
-         */
-        public function load_tab_class($tab_class_name = '')
-        {
-            $admin_settings_token = 'wpheka-info-admin';
-            $tab_class_name       = sanitize_key((string) $tab_class_name);
-            if ('' === $tab_class_name) {
-                return false;
-            }
+		/**
+		 * Load tab class
+		 *
+		 * @param string $tab_class_name Tab slug.
+		 * @return bool Whether the tab's class file exists and was loaded.
+		 */
+		public function load_tab_class( $tab_class_name = '' ) {
+			$admin_settings_token = 'wpheka-info-admin';
+			$tab_class_name       = sanitize_key( (string) $tab_class_name );
+			if ( '' === $tab_class_name ) {
+				return false;
+			}
 
-            $file = WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-' . $admin_settings_token . '-' . $tab_class_name . '.php';
-            if (!is_readable($file)) {
-                return false;
-            }
+			$file = WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH . '/includes/class-' . $admin_settings_token . '-' . $tab_class_name . '.php';
+			if ( ! is_readable( $file ) ) {
+				return false;
+			}
 
-            require_once $file;
-            return true;
-        }
+			require_once $file;
+			return true;
+		}
 
-        /**
-         * Display version info in footer
-         *
-         * Only for users who can open the information page. Everyone else with
-         * wp-admin access, subscribers included, keeps WordPress' own footer text.
-         *
-         * @param string $content The footer text WordPress would show.
-         * @return string
-         */
-        public function version_info_in_footer($content = '')
-        {
-            global $wpdb;
+		/**
+		 * Display version info in footer
+		 *
+		 * Only for users who can open the information page. Everyone else with
+		 * wp-admin access, subscribers included, keeps WordPress' own footer text.
+		 *
+		 * @param string $content The footer text WordPress would show.
+		 * @return string
+		 */
+		public function version_info_in_footer( $content = '' ) {
+			global $wpdb;
 
-            if (!current_user_can(wpheka_web_server_info_capability())) {
-                return $content;
-            }
-            $update     = core_update_footer();
-            $wp_version = strpos($update, '<strong>') === 0 ? get_bloginfo('version') . ' (' . $update . ')' : get_bloginfo('version');
+			if ( ! current_user_can( wpheka_web_server_info_capability() ) ) {
+				return $content;
+			}
+			$update     = core_update_footer();
+			$wp_version = strpos( $update, '<strong>' ) === 0 ? get_bloginfo( 'version' ) . ' (' . $update . ')' : get_bloginfo( 'version' );
 
-            return sprintf(
-                /* translators: 1: WordPress version, 2: PHP version, 3: server software, 4: MySQL version. */
-                esc_attr__('You are running WordPress %1$s | PHP %2$s | %3$s | MySQL %4$s', 'wpheka-web-server-information'),
-                $wp_version,
-                phpversion(),
-                empty($_SERVER['SERVER_SOFTWARE']) ? esc_html__('Unknown', 'wpheka-web-server-information') : sanitize_text_field(wp_unslash($_SERVER['SERVER_SOFTWARE'])),
-                esc_html((string) $wpdb->get_var('SELECT VERSION();'))
-            );
-        }
-    }
+			return sprintf(
+				/* translators: 1: WordPress version, 2: PHP version, 3: server software, 4: MySQL version. */
+				esc_attr__( 'You are running WordPress %1$s | PHP %2$s | %3$s | MySQL %4$s', 'wpheka-web-server-information' ),
+				$wp_version,
+				phpversion(),
+				empty( $_SERVER['SERVER_SOFTWARE'] ) ? esc_html__( 'Unknown', 'wpheka-web-server-information' ) : sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ),
+				esc_html( (string) $wpdb->get_var( 'SELECT VERSION();' ) )
+			);
+		}
+	}
 
 endif;
 

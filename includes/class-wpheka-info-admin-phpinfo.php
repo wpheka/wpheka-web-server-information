@@ -42,7 +42,7 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Phpinfo', false ) ) :
 
 			// We only need the <body>.
 			$xpath = new DOMXPath( $html );
-			$body = $xpath->query( '/html/body' );
+			$body  = $xpath->query( '/html/body' );
 
 			// Save HTML fragment.
 			libxml_use_internal_errors( false );
@@ -138,7 +138,6 @@ if ( ! class_exists( 'WPHEKA_Info_Admin_Phpinfo', false ) ) :
 			}
 			// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
-
 	}
 
 endif;
