@@ -3,7 +3,7 @@ Contributors: akshayaswaroop, wpheka
 Tags: server information, phpinfo, php, mysql, database
 Requires at least: 5.1
 Tested up to: 7.1.3
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://www.paypal.me/AKSHAYASWAROOP
@@ -53,6 +53,11 @@ They are read once a week and kept until then. Open the Database tab and click R
 5. Server info in WP Admin footer.
 
 == Changelog ==
+
+= 1.9.1 - 2026-10-29 =
+* Tweak - Notices from WordPress and other plugins no longer show on the Server Info page, where they printed above the header and then jumped into place. They still show on every other screen.
+* Tweak - "Server and database details were read again" now shows with an icon, like the other WPHEKA plugins' messages.
+* Fix - On sites in a right-to-left language the status labels in the PHP and Database lists sat against the edge of the card. They now have the same margin as the rest of the row.
 
 = 1.9.0 - 2026-10-27 =
 * Feature - A new page design, matching the other WPHEKA plugins: Overview, PHP, Database and Help tabs. The menu item is now called "Server Info".

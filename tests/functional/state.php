@@ -32,6 +32,21 @@ if ( 'setup' === $cmd ) {
 		);
 	}
 	$ids['admin_url']     = admin_url();
+	// "Another plugin" with notices hooked three ways, and one printed outside the notice hooks.
+	$ids['notices_mu'] = WPMU_PLUGIN_DIR . '/zz-wsi-functional-notices.php';
+	wp_mkdir_p( WPMU_PLUGIN_DIR );
+	file_put_contents(
+		$ids['notices_mu'],
+		'<?php
+// Written by wpheka-web-server-information/tests/functional; deleted when the suite ends.
+function zz_wsi_foreign_notice() { echo \'<div class="notice notice-warning zz-wsi-foreign"><p>ZZ WSI function notice</p></div>\'; }
+class ZZ_Wsi_Foreign { public static function notice() { echo \'<div class="notice notice-info zz-wsi-foreign"><p>ZZ WSI method notice</p></div>\'; } }
+add_action( \'admin_notices\', \'zz_wsi_foreign_notice\' );
+add_action( \'admin_notices\', array( \'ZZ_Wsi_Foreign\', \'notice\' ) );
+add_action( \'all_admin_notices\', function () { echo \'<div class="notice notice-error zz-wsi-foreign"><p>ZZ WSI closure notice</p></div>\'; } );
+add_action( \'in_admin_header\', function () { echo \'<div class="notice notice-warning zz-wsi-stray"><p>ZZ WSI stray notice</p></div>\'; }, 1 );
+'
+	);
 	$ids['wp_version']    = get_bloginfo( 'version' );
 	$ids['php_version']   = phpversion();
 	$ids['mysql_version'] = $GLOBALS['wpdb']->get_var( 'SELECT VERSION();' );
@@ -39,6 +54,9 @@ if ( 'setup' === $cmd ) {
 	$save();
 	echo 'created an administrator and a subscriber; plugin was ', $ids['was_active'] ? 'active' : 'inactive (activated for the suite)', "\n";
 } elseif ( 'cleanup' === $cmd ) {
+	if ( ! empty( $ids['notices_mu'] ) && file_exists( $ids['notices_mu'] ) ) {
+		unlink( $ids['notices_mu'] );
+	}
 	foreach ( (array) ( $ids['opt'] ?? array() ) as $opt => $value ) {
 		'__unset__' === $value ? delete_option( $opt ) : update_option( $opt, $value );
 	}

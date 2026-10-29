@@ -145,9 +145,20 @@ const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Pa
     const before = await val();
     await Promise.all([rp.waitForNavigation({ waitUntil: 'load' }), rp.locator('#db-variables button[type=submit]', { hasText: 'Refresh' }).click()]);
     const after = await val();
-    const notice = (await rp.locator('.w-notice[role=status]').innerText().catch(() => '')).trim();
+    const notice = (await rp.locator('.w-notice--success[role=status]').innerText().catch(() => '')).trim();
     await rp.close();
     return [before === 'zz-stale' && /^\d/.test(after || '') && /read again/.test(notice), `before ${before}, after ${after}, notice "${notice}"`];
+  });
+  await check('other plugins\' notices stay off the plugin page, and show on the Dashboard', async () => {
+    await page.goto(`${A}index.php`, { waitUntil: 'load' });
+    const elsewhere = await page.locator('.zz-wsi-foreign').count();
+    let here = 0, stray = false;
+    for (const tab of ['webserver', 'phpinfo', 'dbinfo', 'help']) {
+      await page.goto(`${PAGE}&tab=${tab}`, { waitUntil: 'load' });
+      here += await page.locator('.zz-wsi-foreign').count();
+      stray = stray || await page.locator('.zz-wsi-stray').isVisible();
+    }
+    return [elsewhere === 3 && here === 0 && !stray, `dashboard ${elsewhere} (want 3), plugin page ${here}, stray visible ${stray}`];
   });
   await check('Help tab: Documentation, Support forum and What\'s new, each opening in a new tab', async () => {
     const r = await page.goto(`${PAGE}&tab=help`, { waitUntil: 'load' });

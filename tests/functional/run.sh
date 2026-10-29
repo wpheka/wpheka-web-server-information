@@ -6,7 +6,8 @@
 #
 # Drives the plugin's screens in headless Chromium as an administrator and as a
 # subscriber: the Overview, PHP and Database tabs, the server location lookup,
-# the admin-footer setting, the review prompt, and access control. Fails on any
+# the admin-footer setting, the review prompt, that other plugins' notices stay
+# off the plugin page, and access control. Fails on any
 # case that misbehaves or on new PHP errors from this plugin in debug.log. The
 # site's settings, counter and location cache are restored afterwards, even after
 # a failure, and the plugin is left active or inactive as it was found.

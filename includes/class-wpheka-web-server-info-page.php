@@ -63,6 +63,10 @@ class WPHEKA_Web_Server_Info_Page {
 	 */
 	public static function set_hook( $hook ) {
 		self::$hook = is_string( $hook ) ? $hook : '';
+		if ( '' !== self::$hook ) {
+			// Notices from WordPress and other plugins would print above the header and then jump into place.
+			add_action( 'load-' . self::$hook, array( Page::class, 'quiet_notices' ) );
+		}
 	}
 
 	/**
@@ -432,7 +436,15 @@ class WPHEKA_Web_Server_Info_Page {
 		echo '<div class="w-stack">';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display flag after our own redirect.
 		if ( isset( $_GET['wsi-refreshed'] ) ) {
-			echo '<div class="w-notice" role="status"><p>' . esc_html__( 'Server and database details were read again.', 'wpheka-web-server-information' ) . '</p></div>';
+			Page::notices(
+				array(
+					array(
+						'id'   => 'wsi-refreshed',
+						'kind' => 'success',
+						'text' => esc_html__( 'Server and database details were read again.', 'wpheka-web-server-information' ),
+					),
+				)
+			);
 		}
 
 		Fields::section_start( 'database', __( 'Database', 'wpheka-web-server-information' ), __( 'Read once a week and kept until then. Refresh reads them again now.', 'wpheka-web-server-information' ) );
