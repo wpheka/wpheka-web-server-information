@@ -80,7 +80,8 @@ const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Pa
     return [JSON.stringify(hrefs) === JSON.stringify(['#server', '#php-summary', '#db-summary', '#settings']) && found.every(Boolean), JSON.stringify(hrefs)];
   });
   await check('menu: "Server Info" under WPHEKA, the page header says "Web Server Information"', async () => {
-    const item = page.locator('#adminmenu a[href$="page=wpheka-information"]');
+    // The submenu link: when this is the first WPHEKA page, the top-level WPHEKA link points here too.
+    const item = page.locator('#adminmenu .wp-submenu a[href$="page=wpheka-information"]');
     const label = (await item.innerText()).trim();
     const h1 = (await page.locator('.w-hero h1').innerText()).trim();
     return [label === 'Server Info' && h1.startsWith('Web Server Information'), `menu "${label}", header "${h1}"`];
@@ -160,10 +161,10 @@ const phpError = html => /Fatal error|Warning<\/b>|Notice<\/b>|critical error|Pa
     }
     return [elsewhere === 3 && here === 0 && !stray, `dashboard ${elsewhere} (want 3), plugin page ${here}, stray visible ${stray}`];
   });
-  await check('Help tab: Documentation, Support forum and What\'s new, each opening in a new tab', async () => {
+  await check('Help tab: Documentation, Support forum, What\'s new and Developer hooks, each opening in a new tab', async () => {
     const r = await page.goto(`${PAGE}&tab=help`, { waitUntil: 'load' });
     const cards = await page.locator('.w-flow a.w-flow-step').evaluateAll(a => a.map(x => [x.querySelector('h3').textContent, x.getAttribute('href'), x.getAttribute('target')]));
-    const ok = cards.length === 3 && cards.every(c => c[2] === '_blank') && cards[0][1].startsWith('https://www.wpheka.com/') && cards[1][1].includes('/support/plugin/wpheka-web-server-information/');
+    const ok = cards.length === 4 && cards.every(c => c[2] === '_blank') && cards[0][1] === 'https://docs.wpheka.com/plugin/wpheka-web-server-information' && cards[1][1].includes('/support/plugin/wpheka-web-server-information/') && cards[3][1] === 'https://docs.wpheka.com/plugin/wpheka-web-server-information/developers';
     return [r.status() === 200 && ok, JSON.stringify(cards)];
   });
   await check('header: every review link is the same reviews form (no rate or filter)', async () => {

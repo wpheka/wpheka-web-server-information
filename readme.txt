@@ -54,6 +54,9 @@ They are read once a week and kept until then. Open the Database tab and click R
 
 == Changelog ==
 
+= Unreleased =
+* Enhancement - The Docs link now opens the documentation at docs.wpheka.com. The Help tab links to the developer hooks.
+
 = 1.9.1 - 2026-10-29 =
 * Tweak - Notices from WordPress and other plugins no longer show on the Server Info page, where they printed above the header and then jumped into place. They still show on every other screen.
 * Tweak - "Server and database details were read again" now shows with an icon, like the other WPHEKA plugins' messages.

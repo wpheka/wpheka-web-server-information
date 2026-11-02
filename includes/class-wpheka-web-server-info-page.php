@@ -115,7 +115,8 @@ class WPHEKA_Web_Server_Info_Page {
 	 */
 	private static function links() {
 		return array(
-			'docs'    => 'https://www.wpheka.com/product/web-server-information/',
+			'docs'    => 'https://docs.wpheka.com/plugin/' . self::SLUG,
+			'hooks'   => 'https://docs.wpheka.com/plugin/' . self::SLUG . '/developers',
 			'support' => 'https://wordpress.org/support/plugin/' . self::SLUG . '/',
 			'changes' => 'https://wordpress.org/plugins/' . self::SLUG . '/#developers',
 			'review'  => wpheka_web_server_info_review_url(),
@@ -480,6 +481,7 @@ class WPHEKA_Web_Server_Info_Page {
 			array( 'book', __( 'Documentation', 'wpheka-web-server-information' ), __( 'What each value means and where your host sets it.', 'wpheka-web-server-information' ), $links['docs'] ),
 			array( 'chat', __( 'Support forum', 'wpheka-web-server-information' ), __( 'Ask a question. The developers who built the plugin answer.', 'wpheka-web-server-information' ), $links['support'] ),
 			array( 'sparkle', __( "What's new", 'wpheka-web-server-information' ), __( 'Every change in each version, in plain words.', 'wpheka-web-server-information' ), $links['changes'] ),
+			array( 'code', __( 'Developer hooks', 'wpheka-web-server-information' ), __( 'Choose who can open the page and add your own content to it.', 'wpheka-web-server-information' ), $links['hooks'] ),
 		);
 		echo '<div class="w-flow">';
 		foreach ( $cards as $card ) {
