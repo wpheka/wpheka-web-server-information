@@ -1,16 +1,15 @@
 <?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName -- the main class lives in the main plugin file.
 /**
- * Plugin Name: Web Server Information
+ * Plugin Name: WPHEKA Server Information and phpinfo
  * Plugin URI: https://www.wpheka.com/product/web-server-information/
- * Description: The <code><strong>Web Server Information</strong></code> plugin allows you to check full information about your web server PHP/Mysql configurations including libraries, system type and OS version.
- * Version: 1.9.1
+ * Description: Your server, PHP and database settings in wp-admin, with a safe phpinfo that leaves out your cookies and request headers.
+ * Version: 1.9.2
  * Author: WPHEKA
  * Author URI: https://www.wpheka.com
  * Text Domain: wpheka-web-server-information
  * Domain Path: /languages/
- * Requires at least: 5.1
+ * Requires at least: 6.5
  * Requires PHP: 8.1
- * Tested up to: 7.1.3
  * License: GPLv3 or later
  *
  * @package   WPHEKA_Web_Server_Info
@@ -25,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'WPHEKA_WEB_SERVER_INFO_VERSION', '1.9.1' );
+define( 'WPHEKA_WEB_SERVER_INFO_VERSION', '1.9.2' );
 define( 'WPHEKA_WEB_SERVER_INFO_MAIN_FILE', __FILE__ );
 define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
 define( 'WPHEKA_WEB_SERVER_INFO_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );

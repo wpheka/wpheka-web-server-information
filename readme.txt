@@ -1,27 +1,27 @@
-=== Web Server Information ===
+=== WPHEKA Server Information and phpinfo ===
 Contributors: akshayaswaroop, wpheka
-Tags: server information, phpinfo, php, mysql, database
-Requires at least: 5.1
-Tested up to: 7.1.3
-Stable tag: 1.9.1
+Tags: phpinfo, server information, server info, mysql variables, database
+Requires at least: 6.5
+Tested up to: 7.1.4
+Stable tag: 1.9.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://www.paypal.me/AKSHAYASWAROOP
-Web Server Information plugin will give you detailed information about your hosting server's configuration and installed modules.
+View your server information in wp-admin, with PHP settings, installed modules, MySQL settings and a safe phpinfo report that hides your cookies.
 
 == Description ==
-**Web Server Information** plugin allows you to check full information about the web server PHP/Mysql configurations including libraries, system type and OS version.
+When a host or a plugin author asks what PHP version you are on, what your memory limit is or whether an extension is installed, the answer is in phpinfo(), which is not in wp-admin. WPHEKA Server Information and phpinfo puts it there. Your server, PHP and database settings are on one Overview tab. Every PHP setting and module and every database variable have their own tabs, each with a search box.
+
+It is a phpinfo you can safely screenshot. The PHP tab leaves out PHP's Environment and Variables sections, Apache's environment and request headers and your cookies. A page pasted into a support thread carries no login cookie and none of the environment variables where hosts keep passwords. Administrators only.
 
 ### 🖥️ FEATURES
 
 * **Overview at a glance:** your PHP version, database, web server and memory limit, then the server, PHP and database details that matter most for a WordPress site.
-* **Server details:** OS, software, IP address, port, hostname, document root and **server location**. The location is looked up from the server's IP address with [IP-API.com](https://ip-api.com/docs/api:json). See their [Terms and Policies](https://ip-api.com/docs/legal).
+* **Server details:** OS, software, IP address, port, hostname, document root and **server location**. The location is worked out from your server's IP address. This is the one thing the plugin looks up outside your site, through [IP-API.com](https://ip-api.com/docs/api:json) (see their [Terms and Policies](https://ip-api.com/docs/legal)), and the answer is kept for a week.
 * **Every PHP setting and module**, grouped by module, with a search box.
 * **Every database variable**, with a search box and a Refresh button that reads the values again.
 * **Server versions in the admin footer:** WordPress, PHP, web server and MySQL. Only users who can open the page see them. You can switch it off.
-* **Safe to share:** the PHP tab leaves out request headers and cookies, so a screenshot posted in a support forum carries no login cookie.
-
-If the plugin helps you, a review on WordPress.org helps other site owners find it.
+* **Safe to share:** the PHP tab leaves out PHP's Environment and Variables sections, Apache's environment and request headers and your cookies, so a screenshot posted in a support forum carries no login cookie.
 
 == Installation ==
 
@@ -44,17 +44,29 @@ Open WPHEKA > Server Info, go to Settings on the Overview tab, switch off "Serve
 = The database values look out of date. =
 They are read once a week and kept until then. Open the Database tab and click Refresh to read them again.
 
+= Is it safe to post a screenshot of this page in a support forum? =
+Yes, that is what it is built for. The PHP tab leaves out PHP's Environment and Variables sections, Apache's request headers and your cookies, so the page carries no login cookie and none of the environment variables where hosts keep passwords. Check the page before you post it all the same. php.ini settings are shown as they are. Your server's IP address, hostname and document root are on the Overview tab and the hostname also appears on the PHP tab (the System row) and the Database tab.
+
+= Does the plugin send anything to another site? =
+Only your server's IP address, to show you where the server is. It goes to IP-API.com over plain HTTP to be turned into a city and country. The answer is kept for a week, or an hour if the lookup fails. The lookup runs only when an administrator opens the Overview tab. Nothing else about your site, your settings or your visitors leaves the server.
+
+= Who can see the server details? =
+Administrators, by default. A developer can change that with the `wpheka_plugin_panel_menu_page_capability` filter. The information page, its setting and the versions in the admin footer all use the same capability, so editors and authors see WordPress's ordinary footer and cannot open the page. On a network where the plugin is network-activated, only a network admin can change the network-wide footer setting.
+
 == Screenshots ==
 
-1. Plugin information link.
-2. The Overview tab: stats, server, PHP and database details, plus the footer setting.
-3. The PHP tab: every PHP setting and module, with search.
-4. The Database tab: database details and every variable, with search and Refresh.
-5. Server info in WP Admin footer.
+1. Your PHP version, database, web server and memory limit at a glance, under WPHEKA > Server Info.
+2. The Overview tab: your server, the PHP limits that matter for WordPress and your database details, in one place.
+3. The PHP tab: every PHP setting and extension, grouped by module, with a search box.
+4. The Database tab: every database variable, with a search box and a Refresh button that reads them again.
+5. WordPress, PHP, web server and database versions in the admin footer, shown only to users who can open the page. You can switch it off.
 
 == Changelog ==
 
-= Unreleased =
+= 1.9.2 - 2026-11-13 =
+* Tweak - The plugin is now called WPHEKA Server Information and phpinfo. New listing text and screenshots.
+* Tweak - Requires WordPress 6.5 or later, in line with Requires PHP 8.1.
+* Enhancement - WordPress 7.1.4 compatibility.
 * Enhancement - The Docs link now opens the documentation at docs.wpheka.com. The Help tab links to the developer hooks.
 
 = 1.9.1 - 2026-10-29 =
